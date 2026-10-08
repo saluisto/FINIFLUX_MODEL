@@ -96,6 +96,12 @@
 
   .eq code { display: block; font-family: var(--mono); font-size: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; }
   footer { font-size: 12.5px; color: var(--muted); max-width: 72ch; }
+
+  .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+  .author b { color: var(--fg); font-weight: 600; }
+  .author a { color: var(--accent); text-decoration: none; }
+  .author a:hover, .author a:focus-visible { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -160,6 +166,18 @@
   </section>
 
   <footer>The example values are for illustration only. The model assumes complete mixing and no radon loss or gain at the confluence. Degassing and decay between the confluence and the next sampling point are not included.</footer>
+  <div class="author">
+    <div class="person">
+      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
+      <a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a>
+      <a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="person">
+      <span><b>Benjamin Silas Gilfedder</b> · Hydrology, Trier University</span>
+      <a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a>
+      <a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a>
+    </div>
+  </div>
 </div>
 
 <script>
