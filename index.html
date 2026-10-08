@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>Radon River Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f3f6f6; --surface: #ffffff; --fg: #14232a; --muted: #5a6b72; --line: #d5dfe1; --accent: #0b6e7f; --accent-soft: #dceef0;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac; --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; color-scheme: dark; }
+  }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 48px; display: grid; gap: 28px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 6px 0 8px; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 64ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+  .card { display: grid; gap: 6px; align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; color: inherit; text-decoration: none; }
+  .card:hover, .card:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+  .name { font-weight: 600; font-size: 17px; color: var(--accent); }
+  .desc { color: var(--muted); font-size: 14px; }
+  footer { font-size: 12.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · river studies</div>
+    <h1>Radon river tools</h1>
+    <p class="lede">Calculators for planning and interpreting radon surveys in rivers and streams: sampling spacing, gas exchange, degassing at weirs and mixing at confluences.</p>
+  </header>
+  <nav class="grid">
+    <a class="card" href="radon_length_calculator.html">
+      <span class="name">Sampling length</span>
+      <span class="desc">Length until 37% of radon is still in the river, and the ideal sampling length (half of it).</span>
+    </a>
+    <a class="card" href="radon_degassing_calculator.html">
+      <span class="name">Degassing models by reach</span>
+      <span class="desc">Radon gas transfer velocity k (m/d) per reach from Bennett & Rathbun, O'Connor & Dobbins and Raymond eq. 7.</span>
+    </a>
+    <a class="card" href="radon_weir_degassing.html">
+      <span class="name">Weir and waterfall degassing</span>
+      <span class="desc">Gas transfer velocity k (m/d) across a weir or waterfall from radon measured before and after it.</span>
+    </a>
+    <a class="card" href="radon_mixing_calculator.html">
+      <span class="name">Confluence mixing</span>
+      <span class="desc">Fully mixed radon concentration (Bq/m³) where two rivers or streams join.</span>
+    </a>
+  </nav>
+  <footer>All tools run in the browser. No data is sent anywhere.</footer>
+</div>
+</body>
+</html>

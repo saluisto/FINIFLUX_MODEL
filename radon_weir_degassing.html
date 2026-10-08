@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>Weir Radon Degassing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: inputs beside the k result on wide screens, stacked on phones; concentration profile and derivation below. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --mark: #b4561c;
+    --warn: #8a5a00;
+    --warn-soft: #fbf0d9;
+    --err: #b3261e;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --mark: #eb9a63;
+      --warn: #f0c46b; --warn-soft: #3a3020; --err: #f2867e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --mark: #eb9a63;
+    --warn: #f0c46b; --warn-soft: #3a3020; --err: #f2867e;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 66ch; }
+
+  .main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 700px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+  .group { display: grid; gap: 12px; }
+  .group + .group { padding-top: 14px; border-top: 1px dashed var(--line); }
+  .group h3 { margin: 0; font-size: 13px; font-weight: 600; }
+
+  .field { display: grid; grid-template-columns: minmax(0, 1fr) 140px; gap: 4px 12px; align-items: center; }
+  .field label { font-weight: 500; }
+  .sym { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+  .inbox { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+  .inbox:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .inbox input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 15px var(--mono); padding: 7px 4px 7px 10px; font-variant-numeric: tabular-nums; outline: none; }
+  .inbox span { font: 12px var(--mono); color: var(--muted); padding-right: 9px; white-space: nowrap; }
+  .field.bad .inbox { border-color: var(--err); }
+
+  .fixed { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
+  .fixed b { font-family: var(--mono); font-weight: 500; color: var(--fg); }
+
+  .result { background: var(--accent-soft); border-color: transparent; }
+  .big { display: grid; gap: 4px; }
+  .big .val { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 7vw, 56px); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .big .val small { font-family: var(--body); font-size: 18px; font-weight: 500; margin-left: 6px; color: var(--fg); }
+  .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .msg { margin: 0; font-size: 13.5px; border-radius: 6px; padding: 8px 10px; }
+  .msg.err { color: var(--err); background: var(--surface); }
+  .msg.warn { color: var(--warn); background: var(--warn-soft); }
+
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .chart .lbl { fill: var(--fg); font-weight: 500; }
+
+  .deriv { display: grid; gap: 10px; font-size: 14px; }
+  .deriv p { margin: 0; max-width: 72ch; }
+  .deriv code { display: block; font-family: var(--mono); font-size: 13.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; overflow-x: auto; white-space: nowrap; }
+  footer { font-size: 12.5px; color: var(--muted); max-width: 72ch; }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · weirs and waterfalls</div>
+    <h1>Degassing across a weir or waterfall</h1>
+    <p class="lede">Enter the radon concentration measured upstream and downstream of a weir or waterfall, the distance between the two samples, and the river's discharge and geometry. The tool solves the steady-state radon transport equation for the gas transfer velocity k.</p>
+  </header>
+
+  <div class="main">
+    <form class="panel" id="form" novalidate>
+      <h2>Inputs</h2>
+      <div class="group">
+        <h3>Radon measurements</h3>
+        <div class="field" id="f-c0">
+          <label for="c0">Before the weir <span class="sym">C(x=0)</span></label>
+          <div class="inbox"><input id="c0" type="number" inputmode="decimal" step="any" value="2000"><span>Bq/m³</span></div>
+        </div>
+        <div class="field" id="f-cl">
+          <label for="cl">After the weir <span class="sym">C(x=L)</span></label>
+          <div class="inbox"><input id="cl" type="number" inputmode="decimal" step="any" value="1400"><span>Bq/m³</span></div>
+        </div>
+        <div class="field" id="f-l">
+          <label for="l">Distance between samples <span class="sym">L</span></label>
+          <div class="inbox"><input id="l" type="number" inputmode="decimal" step="any" value="50"><span>m</span></div>
+        </div>
+      </div>
+      <div class="group">
+        <h3>River</h3>
+        <div class="field" id="f-q">
+          <label for="q">Discharge <span class="sym">Q</span></label>
+          <div class="inbox"><input id="q" type="number" inputmode="decimal" step="any" value="5"><span>m³/s</span></div>
+        </div>
+        <div class="field" id="f-w">
+          <label for="w">Width <span class="sym">w</span></label>
+          <div class="inbox"><input id="w" type="number" inputmode="decimal" step="any" value="10"><span>m</span></div>
+        </div>
+        <div class="field" id="f-d">
+          <label for="d">Depth <span class="sym">d</span></label>
+          <div class="inbox"><input id="d" type="number" inputmode="decimal" step="any" value="0.5"><span>m</span></div>
+        </div>
+      </div>
+      <div class="fixed"><span>Radon decay constant λ (fixed)</span><b>2.098 × 10⁻⁶ s⁻¹ (0.1813 d⁻¹)</b></div>
+    </form>
+
+    <section class="panel result" aria-live="polite">
+      <h2>Gas transfer velocity</h2>
+      <div class="big">
+        <div class="val"><span id="k">–</span><small>m/d</small></div>
+      </div>
+      <p class="msg err" id="err" hidden></p>
+      <p class="msg warn" id="warn" hidden></p>
+      <dl class="kv">
+        <dt>Radon lost between samples</dt><dd id="loss">–</dd>
+        <dt>Water travel time over L</dt><dd id="tt">–</dd>
+        <dt>Share of loss from degassing</dt><dd id="share">–</dd>
+        <dt>Degassing rate constant k / d</dt><dd id="kd">–</dd>
+      </dl>
+    </section>
+  </div>
+
+  <section class="panel chart">
+    <h2>Radon concentration between the two samples</h2>
+    <svg id="svg" viewBox="0 0 640 250" role="img" aria-label="Fitted radon concentration profile from the upstream to the downstream sample"></svg>
+  </section>
+
+  <section class="panel">
+    <h2>How k is calculated</h2>
+    <div class="deriv">
+      <p>Steady-state radon transport along the reach, with no groundwater inflow:</p>
+      <code>Q · dC/dx = −k · w · C − λ · d · w · C</code>
+      <p>Separating variables and integrating from C(0) = C₀ gives</p>
+      <code>C(x) = C₀ · exp( −(k·w + λ·d·w) · x / Q )</code>
+      <p>Setting x = L and solving for k:</p>
+      <code>k = Q / (w · L) · ln( C₀ / C_L ) − λ · d</code>
+      <p>With Q in m³/s, λ in s⁻¹ and lengths in m, k comes out in m/s. The tool multiplies it by 86 400 to report m/d.</p>
+    </div>
+  </section>
+
+  <footer>The example values are for illustration only. The result assumes no groundwater or tributary inflow between the two samples, and constant width and depth. λ = ln 2 / 3.8235 d. Because the distance across a weir is short, small errors in C₀ or C_L change k strongly: the result scales with ln(C₀ / C_L).</footer>
+</div>
+
+<script>
+  const LAMBDA = Math.LN2 / (3.8235 * 86400); // 1/s, 222Rn
+  const ids = ["c0", "cl", "l", "q", "w", "d"];
+  const $ = (id) => document.getElementById(id);
+  const fmt = (v, dp) => v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const sig = (v) => { const a = Math.abs(v); return fmt(v, a >= 100 ? 1 : a >= 10 ? 2 : a >= 1 ? 3 : 4); };
+
+  function read() {
+    const v = {}; let ok = true;
+    for (const id of ids) {
+      const raw = $(id).value.trim(); const x = Number(raw);
+      const good = raw !== "" && Number.isFinite(x) && x > 0;
+      $("f-" + id).classList.toggle("bad", !good);
+      if (good) v[id] = x; else ok = false;
+    }
+    return { v, ok };
+  }
+
+  function clearOut() {
+    for (const id of ["k", "loss", "tt", "share", "kd"]) $(id).textContent = "–";
+    $("svg").innerHTML = "";
+  }
+
+  function update() {
+    const { v, ok } = read();
+    const err = $("err"), warn = $("warn");
+    warn.hidden = true;
+    if (!ok) {
+      err.textContent = "Enter positive numbers in every field.";
+      err.hidden = false; clearOut(); return;
+    }
+    if (v.cl >= v.c0) {
+      err.textContent = "C(x=L) must be lower than C(x=0). A higher downstream concentration points to groundwater inflow or a measurement error, and the equation then has no degassing solution.";
+      err.hidden = false; clearOut(); return;
+    }
+    err.hidden = true;
+
+    const total = (v.q / (v.w * v.l)) * Math.log(v.c0 / v.cl); // m/s, k + λd
+    const kms = total - LAMBDA * v.d;
+    const kmd = kms * 86400;
+
+    $("k").textContent = sig(kmd);
+    $("loss").textContent = fmt((1 - v.cl / v.c0) * 100, 1) + " %";
+    const tt = v.l * v.w * v.d / v.q; // s
+    $("tt").textContent = tt < 120 ? fmt(tt, 1) + " s" : tt < 7200 ? fmt(tt / 60, 1) + " min" : fmt(tt / 3600, 2) + " h";
+    $("share").textContent = kms > 0 ? fmt(kms / total * 100, 2) + " %" : "–";
+    $("kd").textContent = sig(kmd / v.d) + " d⁻¹";
+
+    if (kms <= 0) {
+      warn.textContent = "Radioactive decay alone explains the measured drop, so k comes out as zero or negative. Check the concentrations and the distance.";
+      warn.hidden = false;
+    }
+    drawChart(v, kms);
+  }
+
+  function drawChart(v, kms) {
+    const svg = $("svg");
+    const W = 640, H = 250, pl = 64, pr = 24, pt = 18, pb = 40;
+    const iw = W - pl - pr, ih = H - pt - pb;
+    const rate = (Math.max(kms, 0) * v.w + LAMBDA * v.d * v.w) / v.q; // 1/m
+    const ymax = v.c0 * 1.08, ymin = Math.max(0, v.cl - (v.c0 - v.cl) * 0.6);
+    const sx = (x) => pl + (x / v.l) * iw;
+    const sy = (c) => pt + (1 - (c - ymin) / (ymax - ymin)) * ih;
+
+    const ystep = (() => { const raw = (ymax - ymin) / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p; return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p; })();
+    const xstep = (() => { const raw = v.l / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p; return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p; })();
+
+    let s = "";
+    for (let c = Math.ceil(ymin / ystep) * ystep; c <= ymax; c += ystep) {
+      s += `<line x1="${pl}" x2="${W - pr}" y1="${sy(c)}" y2="${sy(c)}" stroke="var(--line)"/>`;
+      s += `<text x="${pl - 8}" y="${sy(c) + 4}" text-anchor="end">${fmt(c, ystep < 1 ? 2 : 0)}</text>`;
+    }
+    for (let x = 0; x <= v.l + 1e-9; x += xstep) s += `<text x="${sx(x)}" y="${H - pb + 18}" text-anchor="middle">${fmt(x, xstep < 1 ? 1 : 0)}</text>`;
+    s += `<text x="${W - pr}" y="${H - 4}" text-anchor="end">distance from upstream sample (m)</text>`;
+    s += `<text transform="translate(14 ${pt + ih / 2}) rotate(-90)" text-anchor="middle">Rn (Bq/m³)</text>`;
+
+    let path = "";
+    for (let i = 0; i <= 100; i++) {
+      const x = (i / 100) * v.l;
+      path += (i ? "L" : "M") + sx(x).toFixed(1) + " " + sy(v.c0 * Math.exp(-rate * x)).toFixed(1);
+    }
+    s += `<path d="${path} L${sx(v.l)} ${sy(ymin)} L${sx(0)} ${sy(ymin)} Z" fill="var(--accent-soft)" stroke="none"/>`;
+    s += `<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.25"/>`;
+
+    const pts = [[0, v.c0, "C(x=0)"], [v.l, v.cl, "C(x=L)"]];
+    for (const [x, c, lab] of pts) {
+      s += `<circle cx="${sx(x)}" cy="${sy(c)}" r="6" fill="var(--mark)" stroke="var(--surface)" stroke-width="2"/>`;
+      const right = x === 0;
+      s += `<text class="lbl" x="${sx(x) + (right ? 10 : -10)}" y="${sy(c) + (right ? -10 : -12)}" text-anchor="${right ? "start" : "end"}">${lab} = ${fmt(c, 0)}</text>`;
+    }
+    svg.innerHTML = s;
+  }
+
+  for (const id of ids) $(id).addEventListener("input", update);
+  $("form").addEventListener("submit", (e) => e.preventDefault());
+  update();
+</script>
+</body>
+</html>

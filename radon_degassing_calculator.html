@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>Radon Degassing Models</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one column — reach input table, results table, then model comparison chart; tables scroll sideways on phones. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --grid: #e6edee;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --err: #b3261e;
+    --s1: #2a78d6; /* Bennett & Rathbun */
+    --s2: #eb6834; /* O'Connor & Dobbins */
+    --s3: #1baf7a; /* Raymond */
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --grid: #22323a; --accent: #5cc3d3; --accent-soft: #1d3a40; --err: #f2867e;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --grid: #22323a; --accent: #5cc3d3; --accent-soft: #1d3a40; --err: #f2867e;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 70ch; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  button { font: 500 13.5px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+  button.icon { padding: 4px 9px; color: var(--muted); }
+  button.icon:hover { color: var(--err); border-color: var(--err); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; background: transparent; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); }
+
+  .scroll { overflow-x: auto; min-width: 0; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+  th { font-size: 12px; font-weight: 600; color: var(--muted); vertical-align: bottom; line-height: 1.3; }
+  th .u { display: block; font: 400 11.5px var(--mono); }
+  td.num, th.num { text-align: right; }
+  td input { width: 100%; min-width: 74px; font: 500 14px var(--mono); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 5px 7px; text-align: right; }
+  td input.name { font-family: var(--body); text-align: left; min-width: 96px; }
+  td input::placeholder { color: var(--muted); opacity: .8; }
+  td input.bad { border-color: var(--err); }
+  .mono { font-family: var(--mono); }
+  .muted { color: var(--muted); }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .empty { padding: 18px 8px; color: var(--muted); text-align: center; }
+  .note { font-size: 13px; color: var(--muted); margin: 0; max-width: 80ch; }
+  .tag { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; color: var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 2px 7px; }
+
+  .fixed { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13.5px; color: var(--muted); }
+  .fixed b { font-family: var(--mono); font-weight: 500; color: var(--fg); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; }
+  .chart-box { position: relative; }
+  .chart-box svg { width: 100%; height: auto; display: block; }
+  .chart-box text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .chart-box .rlab { font-family: var(--body); font-size: 12px; fill: var(--fg); }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12.5px; box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; z-index: 2; }
+  .tip b { font-weight: 600; }
+
+  details.models { font-size: 13.5px; }
+  details.models summary { cursor: pointer; font-weight: 500; }
+  .eq { display: grid; gap: 10px; margin-top: 10px; }
+  .eq div { display: grid; gap: 2px; }
+  .eq code { font-family: var(--mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 6px 9px; overflow-x: auto; white-space: nowrap; display: block; }
+  .copied { font-size: 12.5px; color: var(--accent); }
+
+  @media (prefers-reduced-motion: no-preference) { circle.dot { transition: r .12s; } }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · gas exchange velocity</div>
+    <h1>Radon degassing by reach</h1>
+    <p class="lede">Add the reaches of your river with their geometry, discharge and slope. The tool estimates the radon gas transfer velocity k<sub>Rn</sub> (m/d) for each reach with three empirical models and plots them side by side.</p>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Reaches</h2>
+      <div class="actions">
+        <button type="button" class="primary" id="add">+ Add reach</button>
+        <button type="button" id="example">Load example</button>
+        <button type="button" id="clear">Clear all</button>
+      </div>
+    </div>
+    <div class="scroll">
+      <table id="inTable">
+        <thead>
+          <tr>
+            <th>Reach</th>
+            <th class="num">Depth d<span class="u">m</span></th>
+            <th class="num">Width w<span class="u">m</span></th>
+            <th class="num">Discharge Q<span class="u">m³/s</span></th>
+            <th class="num">Flow velocity v<span class="u">m/s</span></th>
+            <th class="num">Slope S<span class="u">m/m</span></th>
+            <th><span class="u">&nbsp;</span></th>
+          </tr>
+        </thead>
+        <tbody id="inBody"></tbody>
+      </table>
+    </div>
+    <p class="note">Leave flow velocity empty to use v = Q / (w·d), shown in grey. Slope is needed for Bennett &amp; Rathbun and Raymond. O’Connor &amp; Dobbins only needs velocity and depth.</p>
+    <div class="fixed">
+      <span>Schmidt numbers at ~20 °C (fixed):</span>
+      <span>Rn <b>960</b></span><span>O₂ <b>500</b></span><span>CO₂ <b>600</b></span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>k<sub>Rn</sub> per reach (m/d)</h2>
+      <div class="actions"><span class="copied" id="copied" hidden>Copied</span><button type="button" id="copy">Copy table</button></div>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Reach</th>
+            <th class="num">v used<span class="u">m/s</span></th>
+            <th class="num"><span class="swatch" style="background:var(--s1)"></span>Bennett &amp; Rathbun<span class="u">m/d</span></th>
+            <th class="num"><span class="swatch" style="background:var(--s2)"></span>O’Connor &amp; Dobbins<span class="u">m/d</span></th>
+            <th class="num"><span class="swatch" style="background:var(--s3)"></span>Raymond eq. 7<span class="u">m/d</span></th>
+          </tr>
+        </thead>
+        <tbody id="outBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Model comparison</h2>
+      <div class="seg" role="group" aria-label="Y axis scale">
+        <button type="button" id="logBtn" aria-pressed="true">Log scale</button>
+        <button type="button" id="linBtn" aria-pressed="false">Linear</button>
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--s1)"></span>Bennett &amp; Rathbun (1972)</span>
+      <span><span class="swatch" style="background:var(--s2)"></span>O’Connor &amp; Dobbins (1958)</span>
+      <span><span class="swatch" style="background:var(--s3)"></span>Raymond et al. (2012) eq. 7</span>
+    </div>
+    <div class="chart-box" id="chartBox">
+      <svg id="svg" viewBox="0 0 960 340" role="img" aria-label="k_Rn per reach for three degassing models"></svg>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <details class="models">
+      <summary>Model equations (as in Gas_exchange_equations_Laos.xlsx)</summary>
+      <div class="eq">
+        <div>
+          <span><b>Bennett &amp; Rathbun (1972)</b>: v in ft/s (v·3.28), d in ft (d·3.28), converted from O₂</span>
+          <code>k₆₀₀ [1/d] = 106.16 · v_ft^0.413 · S^0.273 / d_ft^1.408   ·   k_Rn [m/d] = k₆₀₀ · (960/500)^-0.5 · d</code>
+        </div>
+        <div>
+          <span><b>O’Connor &amp; Dobbins (1958)</b>: v in m/s, d in m, gives radon directly</span>
+          <code>k_Rn [1/d] = 9.301·10⁻³ · (v·86400)^0.5 / d^1.5   ·   k_Rn [m/d] = k_Rn [1/d] · d</code>
+        </div>
+        <div>
+          <span><b>Raymond et al. (2012), eq. 7</b>: streams and small rivers, converted from CO₂</span>
+          <code>k₆₀₀ [m/d] = 4725 · (v·S)^0.86 · Q^-0.14 · d^0.66   ·   k_Rn [m/d] = k₆₀₀ · (960/600)^-0.5</code>
+        </div>
+      </div>
+    </details>
+  </section>
+</div>
+
+<script>
+  const SC_RN = 960, SC_O2 = 500, SC_CO2 = 600;
+  const MODELS = [
+    { key: "br", name: "Bennett & Rathbun", color: "var(--s1)" },
+    { key: "fin", name: "O’Connor & Dobbins", color: "var(--s2)" },
+    { key: "ray", name: "Raymond eq. 7", color: "var(--s3)" },
+  ];
+  // Example reaches from the workbook (slope from the Bennett & Rathbun sheet).
+  const EXAMPLE = [
+    { name: "Reach 1", d: "3", w: "12", q: "135", v: "", s: "0.0015" },
+    { name: "Reach 2", d: "3", w: "20", q: "135", v: "", s: "0.0015" },
+    { name: "Reach 3", d: "2", w: "30", q: "135", v: "", s: "0.0015" },
+    { name: "Reach 4", d: "2", w: "40", q: "135", v: "", s: "0.0015" },
+    { name: "Reach 5", d: "1", w: "50", q: "135", v: "", s: "0.0015" },
+  ];
+  const FIELDS = ["d", "w", "q", "v", "s"];
+  const STORE = "rn-degassing-reaches";
+  const $ = (id) => document.getElementById(id);
+
+  let reaches;
+  let logScale = true;
+  try { reaches = JSON.parse(localStorage.getItem(STORE)); } catch (e) { reaches = null; }
+  if (!Array.isArray(reaches)) reaches = EXAMPLE.map((r) => ({ ...r }));
+
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(reaches)); } catch (e) {} }
+
+  const num = (s) => { if (s === undefined || String(s).trim() === "") return null; const v = Number(s); return Number.isFinite(v) ? v : NaN; };
+  const fmt = (v, dp = 2) => v == null || !Number.isFinite(v) ? "–" : v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function compute(r) {
+    const d = num(r.d), w = num(r.w), q = num(r.q), vIn = num(r.v), s = num(r.s);
+    const pos = (x) => x != null && x > 0;
+    const vCalc = pos(d) && pos(w) && pos(q) ? q / (w * d) : null;
+    const v = pos(vIn) ? vIn : vCalc;
+    const out = { vCalc, v, vMeasured: pos(vIn), br: null, fin: null, ray: null };
+    if (pos(v) && pos(d)) {
+      out.fin = 9.301e-3 * Math.sqrt(v * 86400) / Math.pow(d, 1.5) * d;
+      if (pos(s)) {
+        const vft = v * 3.28, dft = d * 3.28;
+        const k600 = 106.16 * Math.pow(vft, 0.413) * Math.pow(s, 0.273) / Math.pow(dft, 1.408);
+        out.br = k600 * Math.pow(SC_RN / SC_O2, -0.5) * d;
+        if (pos(q)) out.ray = 4725 * Math.pow(v * s, 0.86) * Math.pow(q, -0.14) * Math.pow(d, 0.66) * Math.pow(SC_RN / SC_CO2, -0.5);
+      }
+    }
+    return out;
+  }
+
+  function renderInputs() {
+    const body = $("inBody");
+    if (!reaches.length) {
+      body.innerHTML = `<tr><td colspan="7" class="empty">No reaches yet. Use “+ Add reach” or load the example from the workbook.</td></tr>`;
+      return;
+    }
+    body.innerHTML = reaches.map((r, i) => `
+      <tr data-i="${i}">
+        <td><input class="name" id="r${i}-name" data-f="name" value="${esc(r.name)}" aria-label="Reach name"></td>
+        ${FIELDS.map((f) => `<td><input id="r${i}-${f}" data-f="${f}" type="text" inputmode="decimal" value="${esc(r[f] ?? "")}" aria-label="${f}"></td>`).join("")}
+        <td><button type="button" class="icon" data-del="${i}" aria-label="Remove ${esc(r.name)}">✕</button></td>
+      </tr>`).join("");
+    refreshInputState();
+  }
+
+  function refreshInputState() {
+    reaches.forEach((r, i) => {
+      const res = compute(r);
+      const vEl = $(`r${i}-v`);
+      if (vEl) vEl.placeholder = res.vCalc ? fmt(res.vCalc, 3) : "auto";
+      for (const f of FIELDS) {
+        const el = $(`r${i}-${f}`); if (!el) continue;
+        const x = num(r[f]);
+        el.classList.toggle("bad", x !== null && !(x > 0));
+      }
+    });
+  }
+
+  function renderOutputs() {
+    const body = $("outBody");
+    const rows = reaches.map((r) => ({ r, res: compute(r) }));
+    if (!rows.length) { body.innerHTML = `<tr><td colspan="5" class="empty">Results appear here once you add a reach.</td></tr>`; drawChart([]); return; }
+    body.innerHTML = rows.map(({ r, res }) => `
+      <tr>
+        <td>${esc(r.name || "–")}</td>
+        <td class="num mono ${res.vMeasured ? "" : "muted"}">${fmt(res.v, 3)}</td>
+        <td class="num mono">${fmt(res.br)}</td>
+        <td class="num mono">${fmt(res.fin)}</td>
+        <td class="num mono">${fmt(res.ray)}</td>
+      </tr>`).join("");
+    drawChart(rows);
+  }
+
+  function update() { refreshInputState(); renderOutputs(); save(); }
+
+  // ---- chart: dot plot, one column per reach, one dot per model ----
+  function drawChart(rows) {
+    const svg = $("svg");
+    const W = 960, H = 340, pl = 62, pr = 16, pt = 16, pb = 46;
+    const iw = W - pl - pr, ih = H - pt - pb;
+    const vals = rows.flatMap(({ res }) => MODELS.map((m) => res[m.key])).filter((v) => v > 0);
+    if (!vals.length) {
+      svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Enter depth, width, discharge and slope to see the models compared.</text>`;
+      return;
+    }
+    let ticks, sy;
+    if (logScale) {
+      const lo = Math.floor(Math.log10(Math.min(...vals)));
+      const hi = Math.ceil(Math.log10(Math.max(...vals)));
+      const top = hi === lo ? hi + 1 : hi;
+      sy = (v) => pt + (1 - (Math.log10(v) - lo) / (top - lo)) * ih;
+      ticks = [];
+      for (let e = lo; e <= top; e++) ticks.push(Math.pow(10, e));
+      var minor = [];
+      for (let e = lo; e < top; e++) for (const m of [2, 5]) minor.push(m * Math.pow(10, e));
+    } else {
+      const max = Math.max(...vals);
+      const raw = max / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+      const step = (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p;
+      const top = Math.ceil(max / step) * step;
+      sy = (v) => pt + (1 - v / top) * ih;
+      ticks = []; for (let t = 0; t <= top + 1e-9; t += step) ticks.push(t);
+      var minor = [];
+    }
+    const n = rows.length, band = iw / n;
+    const cx = (i) => pl + band * (i + 0.5);
+    const off = Math.min(16, band / 5);
+
+    let s = "";
+    for (const t of minor) s += `<line x1="${pl}" x2="${W - pr}" y1="${sy(t)}" y2="${sy(t)}" stroke="var(--grid)" stroke-dasharray="2 4"/>`;
+    for (const t of ticks) {
+      s += `<line x1="${pl}" x2="${W - pr}" y1="${sy(t)}" y2="${sy(t)}" stroke="var(--grid)"/>`;
+      s += `<text x="${pl - 8}" y="${sy(t) + 4}" text-anchor="end">${t >= 1 ? fmt(t, 0) : t}</text>`;
+    }
+    s += `<text transform="translate(14 ${pt + ih / 2}) rotate(-90)" text-anchor="middle">k_Rn (m/d)</text>`;
+    // reach separators + labels
+    const every = Math.ceil(n / 14);
+    rows.forEach(({ r }, i) => {
+      if (i > 0) s += `<line x1="${pl + band * i}" x2="${pl + band * i}" y1="${pt}" y2="${pt + ih}" stroke="var(--grid)"/>`;
+      if (i % every === 0) {
+        const label = (r.name || `#${i + 1}`);
+        const short = label.length > 12 ? label.slice(0, 11) + "…" : label;
+        s += `<text class="rlab" x="${cx(i)}" y="${H - pb + 20}" text-anchor="middle">${esc(short)}</text>`;
+      }
+    });
+    // stems + dots
+    rows.forEach(({ r, res }, i) => {
+      MODELS.forEach((m, j) => {
+        const v = res[m.key];
+        if (!(v > 0)) return;
+        const x = cx(i) + (j - 1) * off, y = sy(v);
+        s += `<line x1="${x}" x2="${x}" y1="${pt + ih}" y2="${y}" stroke="${m.color}" stroke-width="2" stroke-opacity=".35"/>`;
+        s += `<circle class="dot" cx="${x}" cy="${y}" r="6" fill="${m.color}" stroke="var(--surface)" stroke-width="2" data-i="${i}" data-m="${j}"/>`;
+      });
+      // invisible hit band for the whole reach
+      s += `<rect x="${pl + band * i}" y="${pt}" width="${band}" height="${ih}" fill="transparent" data-band="${i}"/>`;
+    });
+    svg.innerHTML = s;
+    svg._rows = rows;
+  }
+
+  function showTip(e) {
+    const t = e.target.closest("[data-band]");
+    const tip = $("tip");
+    if (!t) { tip.hidden = true; return; }
+    const i = +t.dataset.band; const { r, res } = $("svg")._rows[i];
+    tip.innerHTML = `<b>${esc(r.name || "Reach")}</b><br>` + MODELS.map((m) =>
+      `<span class="swatch" style="background:${m.color}"></span>${m.name}: <span class="mono">${fmt(res[m.key])}</span> m/d`).join("<br>");
+    tip.hidden = false;
+    const box = $("chartBox").getBoundingClientRect();
+    let x = e.clientX - box.left + 14, y = e.clientY - box.top + 14;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    if (x + tw > box.width) x = e.clientX - box.left - tw - 14;
+    if (y + th > box.height) y = e.clientY - box.top - th - 14;
+    tip.style.left = Math.max(0, x) + "px"; tip.style.top = Math.max(0, y) + "px";
+  }
+
+  // ---- events ----
+  $("inBody").addEventListener("input", (e) => {
+    const tr = e.target.closest("tr[data-i]"); if (!tr) return;
+    reaches[+tr.dataset.i][e.target.dataset.f] = e.target.value;
+    update();
+  });
+  $("inBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    reaches.splice(+b.dataset.del, 1);
+    renderInputs(); update();
+  });
+  $("add").addEventListener("click", () => {
+    const last = reaches[reaches.length - 1];
+    reaches.push({ name: `Reach ${reaches.length + 1}`, d: "", w: "", q: last ? last.q : "", v: "", s: last ? last.s : "" });
+    renderInputs(); update();
+    const el = $(`r${reaches.length - 1}-d`); if (el) el.focus();
+  });
+  $("example").addEventListener("click", () => { reaches = EXAMPLE.map((r) => ({ ...r })); renderInputs(); update(); });
+  $("clear").addEventListener("click", () => { reaches = []; renderInputs(); update(); });
+  $("logBtn").addEventListener("click", () => { logScale = true; $("logBtn").setAttribute("aria-pressed", "true"); $("linBtn").setAttribute("aria-pressed", "false"); renderOutputs(); });
+  $("linBtn").addEventListener("click", () => { logScale = false; $("linBtn").setAttribute("aria-pressed", "true"); $("logBtn").setAttribute("aria-pressed", "false"); renderOutputs(); });
+  $("svg").addEventListener("pointermove", showTip);
+  $("svg").addEventListener("pointerleave", () => { $("tip").hidden = true; });
+
+  $("copy").addEventListener("click", () => {
+    const head = ["Reach", "depth_m", "width_m", "Q_m3s", "v_ms", "slope", "k_BennettRathbun_md", "k_OConnorDobbins_md", "k_Raymond7_md"];
+    const lines = [head.join("\t")].concat(reaches.map((r) => {
+      const res = compute(r);
+      const f = (v) => v == null || !Number.isFinite(v) ? "" : v.toFixed(4);
+      return [r.name, r.d, r.w, r.q, f(res.v), r.s, f(res.br), f(res.fin), f(res.ray)].join("\t");
+    }));
+    const text = lines.join("\n");
+    const done = () => { $("copied").hidden = false; setTimeout(() => { $("copied").hidden = true; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    else fallbackCopy(text, done);
+  });
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    ta.remove();
+  }
+
+  renderInputs(); update();
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>Radon Confluence Mixing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: two tributary input cards side by side (stacked on phones), mixed result below, then the mixing diagram and equation. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --err: #b3261e;
+    --r1: #2a78d6;
+    --r2: #eb6834;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --err: #f2867e;
+      --r1: #3987e5; --r2: #d95926;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --err: #f2867e;
+    --r1: #3987e5; --r2: #d95926;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 66ch; }
+
+  .inputs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+  @media (max-width: 640px) { .inputs { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+  .river-head { display: flex; align-items: center; gap: 10px; }
+  .river-head .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+  .river-head input.name { font: 600 16px var(--body); color: var(--fg); background: transparent; border: 0; border-bottom: 1px dashed var(--line); padding: 2px 0; width: 100%; min-width: 0; }
+  .river-head input.name:focus { outline: none; border-bottom-color: var(--accent); }
+
+  .field { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 4px 12px; align-items: center; }
+  .field label { font-weight: 500; }
+  .sym { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+  .inbox { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+  .inbox:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .inbox input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 15px var(--mono); padding: 7px 4px 7px 10px; font-variant-numeric: tabular-nums; outline: none; }
+  .inbox span { font: 12px var(--mono); color: var(--muted); padding-right: 9px; white-space: nowrap; }
+  .field.bad .inbox { border-color: var(--err); }
+  .load { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .load b { font-family: var(--mono); font-weight: 500; color: var(--fg); }
+
+  .result { background: var(--accent-soft); border-color: transparent; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; gap: 16px 28px; }
+  .result h2 { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .result { grid-template-columns: minmax(0, 1fr); } }
+  .big .val { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 7vw, 56px); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .big .val small { font-family: var(--body); font-size: 18px; font-weight: 500; margin-left: 6px; color: var(--fg); }
+  .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; margin: 0; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .msg { grid-column: 1 / -1; margin: 0; font-size: 13.5px; color: var(--err); }
+
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram text { font-family: var(--mono); font-size: 11.5px; fill: var(--muted); }
+  .diagram .lbl { fill: var(--fg); font-family: var(--body); font-size: 12.5px; font-weight: 500; }
+  .diagram .mixlbl { fill: var(--accent); font-weight: 600; }
+  .note { font-size: 13px; color: var(--muted); margin: 0; max-width: 72ch; }
+
+  .eq code { display: block; font-family: var(--mono); font-size: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; }
+  footer { font-size: 12.5px; color: var(--muted); max-width: 72ch; }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · confluence mixing</div>
+    <h1>Radon concentration below a confluence</h1>
+    <p class="lede">Enter the radon concentration and discharge of the two rivers or streams that join. The tool calculates the fully mixed radon concentration downstream with a discharge-weighted linear mixing model.</p>
+  </header>
+
+  <div class="inputs">
+    <section class="panel" aria-labelledby="n1">
+      <div class="river-head"><span class="dot" style="background:var(--r1)"></span><input class="name" id="n1" value="River 1" aria-label="Name of river 1"></div>
+      <div class="field" id="f-c1">
+        <label for="c1">Radon <span class="sym">C₁</span></label>
+        <div class="inbox"><input id="c1" type="number" inputmode="decimal" step="any" value="500"><span>Bq/m³</span></div>
+      </div>
+      <div class="field" id="f-q1">
+        <label for="q1">Discharge <span class="sym">Q₁</span></label>
+        <div class="inbox"><input id="q1" type="number" inputmode="decimal" step="any" value="50"><span>m³/s</span></div>
+      </div>
+      <div class="load">Radon flux <b id="l1">–</b> Bq/s</div>
+    </section>
+
+    <section class="panel" aria-labelledby="n2">
+      <div class="river-head"><span class="dot" style="background:var(--r2)"></span><input class="name" id="n2" value="Stream 2" aria-label="Name of river or stream 2"></div>
+      <div class="field" id="f-c2">
+        <label for="c2">Radon <span class="sym">C₂</span></label>
+        <div class="inbox"><input id="c2" type="number" inputmode="decimal" step="any" value="5000"><span>Bq/m³</span></div>
+      </div>
+      <div class="field" id="f-q2">
+        <label for="q2">Discharge <span class="sym">Q₂</span></label>
+        <div class="inbox"><input id="q2" type="number" inputmode="decimal" step="any" value="2"><span>m³/s</span></div>
+      </div>
+      <div class="load">Radon flux <b id="l2">–</b> Bq/s</div>
+    </section>
+  </div>
+
+  <section class="panel result" aria-live="polite">
+    <h2>Mixed concentration downstream</h2>
+    <div class="big"><div class="val"><span id="cmix">–</span><small>Bq/m³</small></div></div>
+    <dl class="kv">
+      <dt>Combined discharge</dt><dd id="qmix">–</dd>
+      <dt>Discharge share <span id="s1n">River 1</span></dt><dd id="f1">–</dd>
+      <dt>Discharge share <span id="s2n">Stream 2</span></dt><dd id="f2">–</dd>
+      <dt>Radon flux share <span id="s3n">Stream 2</span></dt><dd id="lf2">–</dd>
+    </dl>
+    <p class="msg" id="msg" hidden></p>
+  </section>
+
+  <section class="panel diagram">
+    <h2>Where the mix falls between the two end-members</h2>
+    <svg id="svg" viewBox="0 0 640 200" role="img" aria-label="Mixed radon concentration placed between the two input concentrations, with discharge and radon flux shares"></svg>
+    <p class="note">The mixed concentration always lies between C₁ and C₂. It sits closer to the river that carries more water.</p>
+  </section>
+
+  <section class="panel eq">
+    <h2>Linear mixing model</h2>
+    <code>C_mix = (Q₁·C₁ + Q₂·C₂) / (Q₁ + Q₂)</code>
+    <p class="note">The radon flux of each river (Q·C, in Bq/s) is conserved through the confluence and spread over the combined discharge.</p>
+  </section>
+
+  <footer>The example values are for illustration only. The model assumes complete mixing and no radon loss or gain at the confluence. Degassing and decay between the confluence and the next sampling point are not included.</footer>
+</div>
+
+<script>
+  const ids = ["c1", "q1", "c2", "q2"];
+  const $ = (id) => document.getElementById(id);
+  const fmt = (v, dp) => v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const cfmt = (v) => fmt(v, Math.abs(v) < 10 ? 2 : Math.abs(v) < 1000 ? 1 : 0);
+
+  function update() {
+    const v = {}; let ok = true;
+    for (const id of ids) {
+      const raw = $(id).value.trim(); const x = Number(raw);
+      const good = raw !== "" && Number.isFinite(x) && (id.startsWith("q") ? x > 0 : x >= 0);
+      $("f-" + id).classList.toggle("bad", !good);
+      if (good) v[id] = x; else ok = false;
+    }
+    const n1 = $("n1").value.trim() || "River 1", n2 = $("n2").value.trim() || "Stream 2";
+    $("s1n").textContent = n1; $("s2n").textContent = n2; $("s3n").textContent = n2;
+
+    const msg = $("msg");
+    if (!ok) {
+      msg.textContent = "Enter a discharge above zero and a radon concentration of zero or more for both rivers.";
+      msg.hidden = false;
+      for (const id of ["cmix", "qmix", "f1", "f2", "lf2", "l1", "l2"]) $(id).textContent = "–";
+      $("svg").innerHTML = "";
+      return;
+    }
+    msg.hidden = true;
+
+    const L1 = v.q1 * v.c1, L2 = v.q2 * v.c2, Q = v.q1 + v.q2;
+    const cmix = (L1 + L2) / Q;
+    $("l1").textContent = fmt(L1, 0);
+    $("l2").textContent = fmt(L2, 0);
+    $("cmix").textContent = cfmt(cmix);
+    $("qmix").textContent = fmt(Q, Q < 10 ? 2 : 1) + " m³/s";
+    $("f1").textContent = fmt(v.q1 / Q * 100, 1) + " %";
+    $("f2").textContent = fmt(v.q2 / Q * 100, 1) + " %";
+    $("lf2").textContent = L1 + L2 > 0 ? fmt(L2 / (L1 + L2) * 100, 1) + " %" : "–";
+
+    draw(v, cmix, n1, n2, L1, L2);
+  }
+
+  function draw(v, cmix, n1, n2, L1, L2) {
+    const W = 640, pl = 24, pr = 24, iw = W - pl - pr;
+    let s = "";
+    // Concentration axis
+    const lo = Math.min(v.c1, v.c2), hi = Math.max(v.c1, v.c2);
+    const span = hi - lo || Math.max(hi, 1);
+    const a = lo - span * 0.08, b = hi + span * 0.08;
+    const sx = (c) => pl + ((c - a) / (b - a)) * iw;
+    const yA = 62;
+    s += `<text x="${pl}" y="16">Radon concentration (Bq/m³)</text>`;
+    s += `<line x1="${sx(lo)}" x2="${sx(hi)}" y1="${yA}" y2="${yA}" stroke="var(--line)" stroke-width="6" stroke-linecap="round"/>`;
+    const end = (c, col, name, below) => {
+      s += `<circle cx="${sx(c)}" cy="${yA}" r="8" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
+      const anchor = sx(c) < W / 2 ? "start" : "end";
+      const x = anchor === "start" ? Math.max(sx(c) - 8, pl) : Math.min(sx(c) + 8, W - pr);
+      s += `<text class="lbl" x="${x}" y="${below ? yA + 28 : yA - 16}" text-anchor="${anchor}">${esc(name)} · ${cfmt(c)}</text>`;
+    };
+    end(v.c1, "var(--r1)", n1, true);
+    end(v.c2, "var(--r2)", n2, true);
+    // mix marker
+    const mx = sx(cmix);
+    const manchor = mx < 120 ? "start" : mx > W - 120 ? "end" : "middle";
+    s += `<line x1="${mx}" x2="${mx}" y1="${yA - 14}" y2="${yA + 14}" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>`;
+    s += `<text class="lbl mixlbl" x="${mx}" y="${yA - 20}" text-anchor="${manchor}">Mix · ${cfmt(cmix)}</text>`;
+
+    // Share bars
+    const bar = (y, label, f1) => {
+      s += `<text x="${pl}" y="${y - 6}">${label}</text>`;
+      const w1 = iw * f1, w2 = iw - w1;
+      if (w1 > 0) s += `<rect x="${pl}" y="${y}" width="${Math.max(w1 - 1, 0)}" height="12" rx="3" fill="var(--r1)"/>`;
+      if (w2 > 0) s += `<rect x="${pl + w1 + 1}" y="${y}" width="${Math.max(w2 - 1, 0)}" height="12" rx="3" fill="var(--r2)"/>`;
+      s += `<text x="${W - pr}" y="${y - 6}" text-anchor="end">${fmt(f1 * 100, 1)} % / ${fmt((1 - f1) * 100, 1)} %</text>`;
+    };
+    const Q = v.q1 + v.q2;
+    bar(132, "Discharge share", v.q1 / Q);
+    if (L1 + L2 > 0) bar(176, "Radon flux share (Q·C)", L1 / (L1 + L2));
+    $("svg").innerHTML = s;
+  }
+
+  for (const id of [...ids, "n1", "n2"]) $(id).addEventListener("input", update);
+  update();
+</script>
+</body>
+</html>
