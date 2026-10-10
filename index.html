@@ -67,6 +67,23 @@
   .desc { color: var(--muted); font-size: 14px; }
   footer { font-size: 12.5px; color: var(--muted); }
   .cat { display: grid; gap: 14px; scroll-margin-top: 16px; }
+  .cat-head a { color: var(--accent); }
+  .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; }
+  .ex { display: grid; grid-template-rows: auto 1fr; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .ex img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center top; background: #ffffff; border-bottom: 1px solid var(--line); }
+  .ex-body { display: grid; gap: 10px; align-content: start; padding: 18px 20px 20px; }
+  .ex-head { display: grid; gap: 2px; }
+  .ex-head h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 21px; }
+  .ex-tag { justify-self: start; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 2px 7px; }
+  .ex-where { font-size: 13.5px; color: var(--muted); }
+  .ex-body p { margin: 0; font-size: 14px; }
+  .ex-stats { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .ex-stats li { font-size: 12.5px; font-weight: 500; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--bg); font-variant-numeric: tabular-nums; }
+  .ex-body .ex-set { font-size: 13px; color: var(--muted); }
+  .ex-body .src { font-size: 12.5px; }
+  .ex-body .src a { color: var(--muted); }
+  .ex-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 4px; }
+  .ex-file { font-size: 12.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; }
   .codebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; }
   .codebar span { font-size: 13.5px; color: var(--fg); flex: 1 1 260px; }
   .codebtn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14.5px; color: var(--surface); background: var(--accent); border-radius: 8px; padding: 9px 16px; text-decoration: none; }
@@ -92,6 +109,7 @@
       <div class="jump">
         <a href="#calculators">Radon calculators</a>
         <a href="#finiflux">FINIFLUX model</a>
+        <a href="#examples">Example datasets</a>
       </div>
     </div>
     <figure class="hero-fig">
@@ -175,6 +193,45 @@
         <span class="desc">Enter sampling points, reach properties and model options, and download a ready-to-run FINIFLUX.xlsx.</span>
       </a>
     </nav>
+  </section>
+  <section class="cat" id="examples">
+    <div class="cat-head"><h2>Example datasets</h2><p>Ready-to-run FINIFLUX input files from two well-studied rivers. Open them in the <a href="finiflux_input_builder.html">input builder</a> to explore the network, or run them with the Python code.</p></div>
+    <div class="ex-grid">
+      <article class="ex">
+        <img src="assets/manual/avon_results.jpg" alt="Measured and modelled radon and cumulative groundwater flux along the Avon River" loading="lazy">
+        <div class="ex-body">
+          <div class="ex-head"><span class="ex-tag">Simple case</span><h3>Avon River</h3><span class="ex-where">Gippsland Basin, Victoria, Australia</span></div>
+          <p>The Avon drains Mt. Wellington (664 m a.s.l.) and runs 122 km south to Lake Wellington. About 30 % of the catchment is mountainous headwater; the rest is lowland plain, where the river meanders through a wide gravel channel with riffle–pool sequences.</p><p>The dataset covers 50 km of the middle and lower river. In the dry climate there are no tributaries and the river is fed only by groundwater, close to an ideal case for FINIFLUX. Parafluvial flow through gravel banks makes the estimated groundwater inflow exceed the discharge gain.</p>
+          <ul class="ex-stats"><li>30 sampling points</li><li>49.7 km</li><li>Rn 172–2,650 Bq/m³</li><li>no tributaries</li><li>Q 0.14–0.29 m³/s</li></ul>
+          <p class="ex-set">Degassing model 1 (O'Connor & Dobbins) · hyporheic exchange on · power-law residence times</p>
+          <p class="src"><a href="https://doi.org/10.5194/hess-20-3581-2016" target="_blank" rel="noopener">Data: Cartwright & Hofmann (2016), HESS 20, 3581–3600</a></p>
+          <div class="ex-actions">
+            <a class="codebtn" href="examples/FINIFLUX_avon_river.xlsx" download>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 12v2h12v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Download input file
+            </a>
+            <span class="ex-file">FINIFLUX_avon_river.xlsx · 14 KB</span>
+          </div>
+        </div>
+      </article>
+      <article class="ex">
+        <img src="assets/manual/selke_results.jpg" alt="Measured and modelled radon and cumulative groundwater flux along the Selke River" loading="lazy">
+        <div class="ex-body">
+          <div class="ex-head"><span class="ex-tag">Complex case</span><h3>Selke River</h3><span class="ex-where">Harz Mountains, Saxony-Anhalt, Germany</span></div>
+          <p>The Selke drains the Harz Mountains and flows to the Bode. It starts in mountainous headwaters, crosses an upland plateau and then runs through gravel-bed lowlands with intensive agriculture. Its lower reaches both lose and gain water.</p><p>The dataset shows the harder parts of a FINIFLUX setup: tributaries entered as 1 m inflow reaches, a waterfall whose gas transfer velocity was derived from the radon drop across it, and user-defined degassing for every other reach.</p>
+          <ul class="ex-stats"><li>32 sampling points</li><li>64.2 km</li><li>Rn 40–1,628 Bq/m³</li><li>5 tributaries</li><li>Q 0.05–0.64 m³/s</li></ul>
+          <p class="ex-set">Degassing model 3 (user-defined k) · hyporheic exchange on · gamma residence times (α = 0.5)</p>
+          
+          <div class="ex-actions">
+            <a class="codebtn" href="examples/FINIFLUX_selke_river.xlsx" download>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 12v2h12v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Download input file
+            </a>
+            <span class="ex-file">FINIFLUX_selke_river.xlsx · 15 KB</span>
+          </div>
+        </div>
+      </article>
+    </div>
   </section>
   <footer>All calculators run in the browser. No data is sent anywhere.</footer>
   <div class="author">
