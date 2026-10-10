@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>FINIFLUX Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: long-form manual; sticky contents column on wide screens, reading column ~76ch, figures and tables may run wider. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --code-bg: #eaf0f1;
+    --trib: #c4561b;
+    --trib-soft: #fbe9dd;
+    --warn: #8a5a00;
+    --warn-soft: #fbf0d9;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --code-bg: #1c2b30;
+      --trib: #f0985e; --trib-soft: #3a2a1f; --warn: #f0c46b; --warn-soft: #3a3020;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --code-bg: #1c2b30;
+    --trib: #f0985e; --trib-soft: #3a2a1f; --warn: #f0c46b; --warn-soft: #3a3020;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15.5px; line-height: 1.65; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 28px; }
+
+  /* title block */
+  .titleblock { display: grid; gap: 12px; max-width: 78ch; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 5.4vw, 46px); line-height: 1.08; margin: 0; text-wrap: balance; }
+  .subtitle { margin: 0; font-family: var(--display); font-style: italic; font-weight: 500; font-size: 19px; color: var(--muted); }
+  .byline { display: grid; gap: 2px; font-size: 14px; color: var(--muted); }
+  .byline b { color: var(--fg); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 12.5px; font-weight: 500; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 11px; }
+
+  .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 44px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+  nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 18px); display: grid; gap: 1px; font-size: 13.5px; max-height: calc(100vh - 40px); overflow-y: auto; }
+  @media (max-width: 900px) { nav.toc { position: static; max-height: none; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); } }
+  nav.toc .t { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; grid-column: 1 / -1; }
+  nav.toc a { color: var(--muted); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--line); }
+  nav.toc a span { font-family: var(--mono); font-size: 11.5px; margin-right: 6px; }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+
+  article { min-width: 0; display: grid; gap: 6px; }
+  article > section { display: grid; gap: 14px; padding-bottom: 26px; border-bottom: 1px solid var(--line); scroll-margin-top: 20px; }
+  article > section:last-child { border-bottom: 0; }
+  article p, article ul, article ol, article h3 { max-width: 78ch; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 27px; line-height: 1.2; margin: 18px 0 0; text-wrap: balance; }
+  h2 .no { font-family: var(--mono); font-size: 15px; color: var(--accent); font-weight: 500; margin-right: 10px; vertical-align: 3px; }
+  h3 { font-size: 16.5px; font-weight: 600; margin: 10px 0 0; scroll-margin-top: 20px; }
+  p, ul, ol { margin: 0; }
+  ul, ol { padding-left: 22px; display: grid; gap: 6px; }
+  a { color: var(--accent); }
+  code { font-family: var(--mono); font-size: .87em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+  pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 13px/1.55 var(--mono); max-width: 100%; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  /* equations */
+  .math { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; overflow-x: auto; max-width: 78ch; }
+  .math .f { font-family: var(--display); font-size: 18px; white-space: nowrap; }
+  .math .f i { font-style: italic; }
+  .math .tag { font: 12.5px var(--mono); color: var(--muted); }
+  .frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 3px; }
+  .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 4px 1px; }
+  .frac > span:last-child { padding: 1px 4px 0; }
+  .symbols { font-size: 14px; }
+
+  /* callouts */
+  .note, .warn, .new { border-radius: 8px; padding: 12px 16px; max-width: 78ch; display: grid; gap: 4px; font-size: 14.5px; }
+  .note { background: var(--accent-soft); }
+  .warn { background: var(--warn-soft); }
+  .warn b:first-child { color: var(--warn); }
+  .new { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); }
+  .new .k { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+
+  /* tables */
+  .scroll { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--bg); white-space: nowrap; }
+  td.c { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 1px 6px; margin: 1px 2px 1px 0; white-space: nowrap; }
+  .pill.both { color: var(--accent); background: var(--accent-soft); }
+  .pill.py { color: var(--surface); background: var(--accent); }
+  .pill.ml { color: var(--muted); background: var(--bg); border: 1px solid var(--line); }
+
+  /* workflow */
+  .flow { list-style: none; padding: 0; display: grid; gap: 10px; max-width: none; counter-reset: step; }
+  .flow li { counter-increment: step; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .flow li::before { content: counter(step); grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--surface); font: 600 14px var(--body); display: grid; place-items: center; }
+  .flow b { font-size: 15px; }
+  .flow p { font-size: 14px; color: var(--muted); }
+  .tool { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 13.5px; color: var(--accent); text-decoration: none; border: 1px solid var(--accent); border-radius: 999px; padding: 1px 10px; margin: 2px 4px 2px 0; white-space: nowrap; }
+  .tool:hover, .tool:focus-visible { background: var(--accent); color: var(--surface); outline: none; }
+
+  /* figures */
+  figure { margin: 0; display: grid; gap: 8px; max-width: 900px; }
+  figure .box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow-x: auto; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 4px; background: #ffffff; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 560px; }
+  figcaption { font-size: 13px; color: var(--muted); max-width: 78ch; }
+  figcaption b { color: var(--fg); }
+  .fig svg text { font-family: var(--body); font-size: 12.5px; fill: var(--fg); }
+  .fig svg .sub { font-family: var(--mono); font-size: 11.5px; fill: var(--muted); }
+  .fig svg .el { font-weight: 600; }
+  .fig svg .tr { fill: var(--trib); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+
+  .refs { list-style: none; padding: 0; gap: 10px; }
+  .refs li { padding-left: 14px; border-left: 2px solid var(--line); font-size: 14.5px; }
+  .refs i { font-style: italic; }
+
+  .dl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+  .pdf { display: inline-flex; align-items: center; gap: 8px; font: 600 14px var(--body); color: var(--surface); background: var(--accent); border-radius: 8px; padding: 8px 16px; text-decoration: none; }
+  .pdf:hover, .pdf:focus-visible { filter: brightness(1.08); outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  @media print {
+    :root { --bg: #ffffff; --surface: #ffffff; --fg: #14232a; --muted: #4f5f66; --line: #d5dfe1; --accent: #0b6e7f; --accent-soft: #e6f2f3; --code-bg: #f1f5f6; --trib: #c4561b; --trib-soft: #fbe9dd; --warn: #7a5000; --warn-soft: #fbf0d9; color-scheme: light; }
+    body { font-size: 10.5pt; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .wrap { max-width: none; padding: 0; gap: 14pt; }
+    .site-back, .dl { display: none !important; }
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 12pt; }
+    nav.toc { position: static; max-height: none; overflow: visible; border: 1px solid var(--line); border-radius: 6px; padding: 10pt 12pt; grid-template-columns: 1fr 1fr; break-after: page; }
+    article > section { break-before: page; padding-bottom: 0; border-bottom: 0; }
+    article > section#about { break-before: auto; }
+    h2 { margin-top: 0; }
+    h3, figcaption { break-after: avoid; }
+    figure, .math, .note, .warn, .new, .flow li, tr, pre { break-inside: avoid; }
+    pre, .math, .scroll, figure .box { overflow: visible; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    figure svg { min-width: 0; }
+    a { text-decoration: none; }
+    .tool { border-width: 1px; }
+  }
+
+  .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+  .author b { color: var(--fg); font-weight: 600; }
+  .author a { color: var(--accent); text-decoration: none; }
+  .author a:hover, .author a:focus-visible { text-decoration: underline; }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header class="titleblock">
+    <div class="eyebrow">²²²Rn · FINIFLUX model · User manual</div>
+    <h1>FINIFLUX manual</h1>
+    <p class="subtitle">A finite element model for quantifying groundwater fluxes to streams with radon as a natural tracer. Python edition, with notes on the original MATLAB version.</p>
+    <div class="byline">
+      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research · sven.frei@wur.nl</span>
+      <span><b>Benjamin S. Gilfedder</b> · Hydrology, Trier University · gilfedder@uni-trier.de</span>
+    </div>
+    <div class="meta"><span class="chip">Draft · October 2026</span><span class="chip">Supersedes manual v2.0 (Feb 2026)</span><span class="chip">PyTorch · TensorFlow</span></div>
+    <div class="dl"><a class="pdf" href="assets/manual/FINIFLUX_manual.pdf" download="FINIFLUX_manual.pdf"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 12v2h12v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Download PDF</a><span>A4, for printing or offline reading</span></div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Contents">
+      <span class="t">Contents</span>
+      <a href="#about"><span>1</span>About FINIFLUX</a>
+      <a href="#workflow"><span>2</span>Workflow and web tools</a>
+      <a href="#install"><span>3</span>Installation</a>
+      <a href="#concept"><span>4</span>Model concept</a>
+      <a href="#input"><span>5</span>Preparing the input file</a>
+      <a href="#tributaries"><span>6</span>Tributaries and surface inflow</a>
+      <a href="#running"><span>7</span>Running FINIFLUX</a>
+      <a href="#inversion"><span>8</span>Parameter estimation</a>
+      <a href="#uncertainty"><span>9</span>Uncertainty analysis</a>
+      <a href="#outputs"><span>10</span>Outputs</a>
+      <a href="#plausibility"><span>11</span>Checking plausibility</a>
+      <a href="#poorfit"><span>12</span>If the fit is poor</a>
+      <a href="#examples"><span>13</span>Example datasets</a>
+      <a href="#legacy"><span>A</span>The MATLAB / BEOPEST version</a>
+      <a href="#references"><span>B</span>References</a>
+    </nav>
+
+    <article>
+      <!-- 1 -->
+      <section id="about">
+        <h2><span class="no">1</span>About FINIFLUX</h2>
+        <p>FINIFLUX is an implicit finite element model that solves the steady-state mass balance of radon-222 (²²²Rn) along streams and rivers. From measured radon activities it estimates, reach by reach, how much <b>groundwater</b> flows into the river and how strongly the river exchanges water with its <b>hyporheic zone</b>.</p>
+        <p>Groundwater is strongly enriched in radon compared with river water. Along a stream, radon is lost by degassing to the atmosphere and by radioactive decay, and it is replenished wherever groundwater or hyporheic water enters. The radon profile measured along the river therefore records where and how much groundwater enters. FINIFLUX closes this mass balance for every reach and inverts the measured profile into a spatially resolved estimate of groundwater inflow.</p>
+        <p>FINIFLUX is open source and freely available. The theory, numerical implementation and residence-time models are described in Frei &amp; Gilfedder (2015) and Frei et al. (2019).</p>
+
+        <h3>What is new in the Python edition</h3>
+        <p>The original FINIFLUX (versions 2.x) is a compiled MATLAB program coupled to the optimiser BEOPEST (Doherty, 2010). The Python edition keeps the same physics and the same input file, but rebuilds the model so that it can calibrate itself.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Topic</th><th>MATLAB version 2.x</th><th>Python edition</th></tr></thead>
+            <tbody>
+              <tr><td>Platform</td><td>Windows, compiled MATLAB 2015b plus the MATLAB Runtime (about 700 MB)</td><td>Any system with Python 3, NumPy and PyTorch or TensorFlow</td></tr>
+              <tr><td>Parameter estimation</td><td>External optimiser BEOPEST with a master and several slave processes</td><td>Built in. The model is differentiable, so gradients come from automatic differentiation (Adam, then L-BFGS)</td></tr>
+              <tr><td>Running a model</td><td><code>pre_pest.exe</code>, then <code>Beopest64</code> master and slaves in separate command windows</td><td>One command: <code>python run_FINIFLUX.py</code></td></tr>
+              <tr><td>Stabilising the fit</td><td>Tikhonov regularisation with <code>addreg1.exe</code></td><td>Log-space parameters, a misfit normalised by the detection limit, and an optional smoothness penalty</td></tr>
+              <tr><td>Uncertainty</td><td>Sensitivities in <code>finiflux.sen</code></td><td>Posterior credible intervals per reach, an identifiability report, and a groundwater-endmember uncertainty band</td></tr>
+              <tr><td>Hyporheic depth</td><td>Always estimated</td><td>Estimated, or calculated from bedform heights</td></tr>
+              <tr><td>Results and figures</td><td>Spread over the run and slave folders; plots with <code>pest_tracker.exe</code></td><td>One <code>results/</code> folder with data files and a five-panel figure, including the water-balance check</td></tr>
+              <tr><td>Input file</td><td colspan="2"><code>FINIFLUX.xlsx</code>, same layout for both. The Python edition reads it by label, ignores the run path and CPU cells, and adds optional extras (column U, detection limit).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section id="workflow">
+        <h2><span class="no">2</span>Workflow and web tools</h2>
+        <p>A FINIFLUX study runs from survey planning to checking the results. Free browser tools on this website support several of the steps. They run entirely in the browser and send no data anywhere.</p>
+        <ol class="flow">
+          <li><b>Plan the survey</b><p>Choose sampling points close enough together that the radon signal of inflowing groundwater is not lost by degassing before the next point.<br><a class="tool" href="radon_length_calculator.html">Sampling length →</a></p></li>
+          <li><b>Measure in the field</b><p>Radon at every sampling point, discharge, mean width and depth of each reach, the radon activity of groundwater (the endmember) and, ideally, its spread. Measure tributaries above their confluence.</p></li>
+          <li><b>Estimate degassing</b><p>If you use your own gas transfer velocities (degassing model 3), estimate k per reach from empirical models, and calculate k across weirs and waterfalls from radon measured before and after them.<br><a class="tool" href="radon_degassing_calculator.html">Degassing models by reach →</a><a class="tool" href="radon_weir_degassing.html">Weir and waterfall degassing →</a></p></li>
+          <li><b>Handle tributaries</b><p>Add a short inflow reach at each confluence and calculate the radon activity just below it with the mixing model.<br><a class="tool" href="radon_mixing_calculator.html">Confluence mixing →</a></p></li>
+          <li><b>Build the input file</b><p>Enter options, sampling points and reaches, check them on the network diagram and profile plot, and download <code>FINIFLUX.xlsx</code>.<br><a class="tool" href="finiflux_input_builder.html">Input builder →</a></p></li>
+          <li><b>Run FINIFLUX</b><p><code>python run_FINIFLUX.py</code> estimates groundwater inflow, hyporheic depth and residence time for every reach (<a href="#running">section 7</a>).</p></li>
+          <li><b>Check the results</b><p>Compare modelled and measured radon, the cumulative groundwater inflow against the discharge gain, and the credible intervals (<a href="#plausibility">section 11</a>).</p></li>
+        </ol>
+      </section>
+
+      <!-- 3 -->
+      <section id="install">
+        <h2><span class="no">3</span>Installation</h2>
+        <p><a class="pdf" href="assets/FINIFLUX_python.zip" download><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 12v2h12v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Download FINIFLUX for Python (.zip)</a></p>
+        <p>The download contains <code>run_FINIFLUX.py</code>, the PyTorch and TensorFlow packages, the README and an example input file (<code>FINIFLUX.xlsx</code>, the Schaefer et al. dataset). Unzip it and install the requirements:</p>
+        <p>It needs Python 3 with NumPy, openpyxl and matplotlib, plus <b>one</b> tensor library:</p>
+<pre><code># PyTorch backend
+pip install torch numpy openpyxl matplotlib
+
+# or TensorFlow backend (use a wheel that matches your processor, e.g. arm64 on Apple Silicon)
+pip install tensorflow numpy openpyxl matplotlib</code></pre>
+        <p>No further installation is needed. Keep the folder structure as it is: <code>run_FINIFLUX.py</code> in the main folder, next to <code>finiflux_pytorch/</code> and <code>finiflux_tensorflow/</code>. The launcher adds the selected package to Python's search path itself.</p>
+        <div class="note"><b>Using the original MATLAB version?</b><span>Its installation, run procedure and download locations are summarised in <a href="#legacy">appendix A</a>.</span></div>
+      </section>
+
+      <!-- 4 -->
+      <section id="concept">
+        <h2><span class="no">4</span>Model concept</h2>
+        <h3>Governing equation</h3>
+        <p>For each reach, FINIFLUX solves the steady-state radon mass balance:</p>
+        <div class="math"><span class="f"><i>Q</i> <span class="frac"><span>d<i>C</i></span><span>d<i>x</i></span></span> = <i>I</i>·<i>c</i><sub>gw</sub> + α<sub>1</sub> + <span class="frac"><span><i>Q</i><sub>in</sub></span><span><i>L</i></span></span><i>c</i><sub>in</sub> − (<i>I</i> + α<sub>2</sub> + <i>k</i>·<i>w</i> + λ·<i>d</i>·<i>w</i> + <span class="frac"><span><i>Q</i><sub>in</sub></span><span><i>L</i></span></span>)·<i>C</i></span><span class="tag">sources − sinks</span></div>
+        <div class="scroll symbols">
+          <table>
+            <thead><tr><th>Symbol</th><th>Meaning</th><th>Unit</th></tr></thead>
+            <tbody>
+              <tr><td class="c">C</td><td>Radon activity in the river</td><td class="c">Bq/m³</td></tr>
+              <tr><td class="c">Q</td><td>River discharge</td><td class="c">m³/s</td></tr>
+              <tr><td class="c">I</td><td>Groundwater inflow per metre of river (estimated)</td><td class="c">m³/(m·s)</td></tr>
+              <tr><td class="c">c_gw</td><td>Radon activity of groundwater (endmember)</td><td class="c">Bq/m³</td></tr>
+              <tr><td class="c">α₁, α₂</td><td>Radon production and loss by hyporheic exchange</td><td class="c">Bq/(m·s), m²/s</td></tr>
+              <tr><td class="c">k</td><td>Gas transfer (degassing) velocity</td><td class="c">m/s</td></tr>
+              <tr><td class="c">w, d</td><td>Mean width and depth of the reach</td><td class="c">m</td></tr>
+              <tr><td class="c">λ</td><td>²²²Rn decay constant, 0.18 d⁻¹ = 0.18/86 400 s⁻¹</td><td class="c">s⁻¹</td></tr>
+              <tr><td class="c">Q_in, L, c_in</td><td>Tributary discharge, inflow length and radon activity (0 if none)</td><td class="c">m³/s, m, Bq/m³</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The node–element concept</h3>
+        <p>FINIFLUX discretises the river into one-dimensional finite elements. Each <b>node</b> is a sampling location with a measured radon activity. Each <b>element</b> is the reach between two neighbouring nodes and carries the reach properties: length, depth, width, discharge, groundwater endmember and so on. A river with <i>N</i> sampling points therefore has <i>N</i> − 1 reaches. The modelled radon at every node is compared directly with the measurement there.</p>
+        <figure class="fig">
+          <div class="box">
+            <svg viewBox="0 0 760 150" role="img" aria-label="Five nodes along a river joined by four elements, with node positions and element lengths">
+              <line x1="60" y1="70" x2="700" y2="70" stroke="var(--muted)" stroke-width="3"/>
+              <g>
+                <circle cx="60" cy="70" r="11" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>
+                <circle cx="328" cy="70" r="11" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>
+                <circle cx="436" cy="70" r="11" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>
+                <circle cx="557" cy="70" r="11" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>
+                <circle cx="700" cy="70" r="11" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>
+              </g>
+              <g text-anchor="middle">
+                <text x="60" y="30">Node 1</text><text class="sub" x="60" y="46">x = 0 m</text>
+                <text x="328" y="30">Node 2</text><text class="sub" x="328" y="46">2590 m</text>
+                <text x="436" y="30">Node 3</text><text class="sub" x="436" y="46">3638 m</text>
+                <text x="557" y="30">Node 4</text><text class="sub" x="557" y="46">4810 m</text>
+                <text x="700" y="30">Node 5</text><text class="sub" x="700" y="46">6190 m</text>
+                <text class="el" x="194" y="104">Element 1</text><text class="sub" x="194" y="120">Δx = 2590 m</text>
+                <text class="el" x="382" y="104">Element 2</text><text class="sub" x="382" y="120">1048 m</text>
+                <text class="el" x="496" y="104">Element 3</text><text class="sub" x="496" y="120">1172 m</text>
+                <text class="el" x="628" y="104">Element 4</text><text class="sub" x="628" y="120">1380 m</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Figure 1.</b> Five sampling points (nodes) along a river and the four reaches (elements) between them, drawn to scale. Node positions go into column F of the input file, element lengths into column J.</figcaption>
+        </figure>
+
+        <h3>Degassing</h3>
+        <p>Option C8 selects how the gas transfer velocity <i>k</i> is obtained. With <i>v</i> = <i>Q</i>/(<i>w</i>·<i>d</i>) in m/d:</p>
+        <ul>
+          <li><b>1, O'Connor &amp; Dobbins (1958):</b> <code>k = 9.301·10⁻³ · v^0.5 / d^1.5 · d</code> (m/d).</li>
+          <li><b>2, Negulescu &amp; Rojanski (1969):</b> <code>k = 4.87·10⁻⁴ · (v/d)^0.85 · d</code> (m/d).</li>
+          <li><b>3, user-defined:</b> one value per reach in column T, in m/s. Use this for measured values, for other empirical models, and for reaches with weirs or waterfalls, where turbulent degassing is far stronger than the empirical models predict.</li>
+        </ul>
+        <div class="note"><span>The <a href="radon_degassing_calculator.html">degassing models tool</a> compares three empirical models per reach. The <a href="radon_weir_degassing.html">weir and waterfall tool</a> derives <i>k</i> from radon measured before and after a weir. Both give <i>k</i> in m/d; the <a href="finiflux_input_builder.html">input builder</a> accepts m/d and converts to m/s for column T.</span></div>
+
+        <h3>Hyporheic exchange and residence-time distributions</h3>
+        <p>River water that flows through the streambed (the hyporheic zone) picks up radon produced in the sediment and loses some by decay. FINIFLUX describes this with a production term α₁ and a loss term α₂. They depend on the hyporheic depth <i>h</i>, porosity, width, the mean residence time <i>t<sub>h</sub></i> and the residence-time distribution (RTD), chosen with option C17:</p>
+        <ul>
+          <li><b>1, exponential:</b> closed form, <code>α₁ = γ·h·w·por/(1+λ·t_h)</code> and <code>α₂ = λ·h·w·por/(1+λ·t_h)</code> with γ = c<sub>gw</sub>·λ. The fastest option.</li>
+          <li><b>2, truncated power law:</b> from a convolution of the RTD with radon in-growth and decay (Frei et al., 2019).</li>
+          <li><b>3, gamma:</b> closed-form Laplace transform <code>(1+λ·t_h/α)^−α</code>. The shape parameter α (C22) changes the distribution: α = 1 equals the exponential model, α = 2 gives a distribution with a peak, α = 0.5 a long tail.</li>
+        </ul>
+        <p>Including hyporheic exchange (C13 = 1) is recommended; it often improves the fit.</p>
+
+        <h3>Numerical scheme</h3>
+        <p>FINIFLUX uses linear finite elements. For each element it assembles a reaction matrix, an advection matrix, a Petrov–Galerkin upwind correction weighted by β (option C24) and a load vector. The upstream boundary condition fixes the radon at the first node to its measured value. The resulting linear system is solved directly. In the Python edition every step is a differentiable tensor operation, so gradients pass through the solve.</p>
+      </section>
+
+      <!-- 5 -->
+      <section id="input">
+        <h2><span class="no">5</span>Preparing the input file</h2>
+        <p>All settings and data live in a single sheet of <code>FINIFLUX.xlsx</code>, in three blocks: options in columns B and C, nodes in F and G, and elements in I to U. The data rows start in row 4.</p>
+        <div class="new"><span class="k">Recommended</span><span>The <a href="finiflux_input_builder.html">FINIFLUX input builder</a> writes this file for you. It checks every value, locks the inflow columns of normal reaches, keeps tributary reach lengths equal to the inflow length, and shows the network and the radon and discharge profile before you download. It can also open and edit an existing file.</span></div>
+        <div class="warn"><b>Keep the layout.</b><span>The MATLAB version reads every option from its exact cell. Do not insert or reorder rows or columns. The Python edition reads options by their labels and is more forgiving, but a file in the original layout works with both.</span></div>
+
+        <h3>Options (columns B and C)</h3>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Cell</th><th>Setting</th><th>Values</th><th>Used by</th></tr></thead>
+            <tbody>
+              <tr><td class="c">C4</td><td>Run directory for the simulation</td><td>A folder path, e.g. <code>D:\FINIFLUX\run1</code>. Avoid spaces and special characters.</td><td><span class="pill ml">MATLAB</span></td></tr>
+              <tr><td class="c">C6</td><td>Number of CPU cores. BEOPEST uses one as master and the rest as slaves; three slaves are usually enough.</td><td>Whole number ≥ 2</td><td><span class="pill ml">MATLAB</span></td></tr>
+              <tr><td class="c">C8</td><td>Degassing model</td><td>1 O'Connor &amp; Dobbins · 2 Negulescu &amp; Rojanski · 3 user values (column T)</td><td><span class="pill both">Both</span></td></tr>
+              <tr><td class="c">C13</td><td>Hyporheic exchange</td><td>1 on (recommended) · 0 off</td><td><span class="pill both">Both</span></td></tr>
+              <tr><td class="c">C17</td><td>Residence-time distribution</td><td>1 exponential · 2 truncated power law · 3 gamma</td><td><span class="pill both">Both</span></td></tr>
+              <tr><td class="c">C22</td><td>Shape α of the gamma distribution (only for C17 = 3)</td><td>&gt; 0, e.g. 0.5, 1 or 2</td><td><span class="pill both">Both</span></td></tr>
+              <tr><td class="c">C24</td><td>Upstream weighting β of the advection term</td><td>0 off · 0 &lt; β &lt; 1 partial · 1 full. Recommended: 0.5</td><td><span class="pill both">Both</span></td></tr>
+              <tr><td class="c">C28</td><td>Radon detection limit, labelled "Radon Detection Limit" (optional)</td><td>Bq/m³, default 2.5. Weights the misfit and sets the default noise level.</td><td><span class="pill py">Python</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Nodes (columns F and G)</h3>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Column</th><th>Content</th><th>Unit</th></tr></thead>
+            <tbody>
+              <tr><td class="c">F</td><td>Location of each sampling point along the river, strictly increasing downstream</td><td class="c">m</td></tr>
+              <tr><td class="c">G</td><td>Measured radon activity at that point. The first value is also the upstream boundary condition.</td><td class="c">Bq/m³</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The list can be as long as needed; it ends at the first empty cell in column F.</p>
+
+        <h3>Elements (columns I to U)</h3>
+        <p>One row per reach, starting in row 4. Reach <i>i</i> runs from node <i>i</i> to node <i>i</i> + 1, so this block has one row fewer than the node block.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Column</th><th>Content</th><th>Unit</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="c">I</td><td>Reach number</td><td class="c">–</td><td>1, 2, 3 … The last number is the number of nodes minus one.</td></tr>
+              <tr><td class="c">J</td><td>Reach length</td><td class="c">m</td><td>Distance between the two nodes, usually <code>=F5-F4</code>.</td></tr>
+              <tr><td class="c">K</td><td>Mean river depth</td><td class="c">m</td><td></td></tr>
+              <tr><td class="c">L</td><td>Mean river width</td><td class="c">m</td><td></td></tr>
+              <tr><td class="c">M</td><td>Radon activity of inflowing groundwater (endmember)</td><td class="c">Bq/m³</td><td>Often the largest source of uncertainty; see column U.</td></tr>
+              <tr><td class="c">N</td><td>Hyporheic depth (initial guess)</td><td class="c">m</td><td>Only with C13 = 1. In bedform mode (Python) this column holds the <b>bedform height</b> instead.</td></tr>
+              <tr><td class="c">O</td><td>Porosity of the streambed</td><td class="c">–</td><td>Only with C13 = 1.</td></tr>
+              <tr><td class="c">P</td><td>Tributary / surface inflow discharge</td><td class="c">m³/s</td><td>0 for normal reaches. See <a href="#tributaries">section 6</a>.</td></tr>
+              <tr><td class="c">Q</td><td>Inflow length</td><td class="c">m</td><td>Must equal the reach length in J. 0 for normal reaches.</td></tr>
+              <tr><td class="c">R</td><td>Radon activity of the inflow</td><td class="c">Bq/m³</td><td>0 for normal reaches.</td></tr>
+              <tr><td class="c">S</td><td>Mean river discharge of the reach</td><td class="c">m³/s</td><td></td></tr>
+              <tr><td class="c">T</td><td>User-defined gas transfer velocity</td><td class="c">m/s</td><td>Only with C8 = 3; otherwise 0. Divide m/d by 86 400.</td></tr>
+              <tr><td class="c">U</td><td>Standard deviation of the groundwater endmember (optional)</td><td class="c">Bq/m³</td><td><span class="pill py">Python</span> Enables the endmember uncertainty analysis (<a href="#endmember">9.2</a>).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section id="tributaries">
+        <h2><span class="no">6</span>Tributaries and surface inflow</h2>
+        <p>FINIFLUX can include tributaries and other surface inflows, such as drains or wastewater treatment plant outflows, and accounts for their effect on the radon in the river. Each inflow is represented by a short extra element.</p>
+        <h3>Step 1 · Add two nodes at the confluence</h3>
+        <p>Place one new node where the tributary enters the river and a second one just downstream, where its influence ends. The distance between the two nodes equals the width of the tributary at the inflow (often 1 to 10 m). The element between them is the <b>inflow element</b>.</p>
+        <figure class="fig">
+          <div class="box">
+            <svg viewBox="0 0 760 170" role="img" aria-label="Seven nodes after adding two nodes around a tributary; element 3 is the 10 m inflow element">
+              <line x1="50" y1="96" x2="290" y2="96" stroke="var(--muted)" stroke-width="3"/>
+              <line x1="290" y1="96" x2="350" y2="96" stroke="var(--trib)" stroke-width="4"/>
+              <line x1="350" y1="96" x2="710" y2="96" stroke="var(--muted)" stroke-width="3"/>
+              <path d="M320 14 L320 88" stroke="var(--trib)" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <text class="tr el" x="330" y="22">Tributary (Q_in, c_in)</text>
+              <g fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5">
+                <circle cx="50" cy="96" r="11"/><circle cx="170" cy="96" r="11"/><circle cx="470" cy="96" r="11"/><circle cx="590" cy="96" r="11"/><circle cx="710" cy="96" r="11"/>
+              </g>
+              <g fill="var(--trib)" stroke="var(--surface)" stroke-width="2.5"><circle cx="290" cy="96" r="10"/><circle cx="350" cy="96" r="10"/></g>
+              <g text-anchor="middle">
+                <text x="50" y="60">Node 1</text><text class="sub" x="50" y="75">0 m</text>
+                <text x="170" y="60">Node 2</text><text class="sub" x="170" y="75">2590 m</text>
+                <text class="tr" x="282" y="60">Node 3</text><text class="sub" x="282" y="75">3350 m</text>
+                <text class="tr" x="364" y="60">Node 4</text><text class="sub" x="364" y="75">3360 m</text>
+                <text x="470" y="60">Node 5</text><text class="sub" x="470" y="75">3638 m</text>
+                <text x="590" y="60">Node 6</text><text class="sub" x="590" y="75">4810 m</text>
+                <text x="710" y="60">Node 7</text><text class="sub" x="710" y="75">6190 m</text>
+                <text class="el" x="110" y="130">Element 1</text><text class="sub" x="110" y="146">2590 m</text>
+                <text class="el" x="230" y="130">Element 2</text><text class="sub" x="230" y="146">760 m</text>
+                <text class="el tr" x="320" y="130">Element 3</text><text class="sub" x="320" y="146">10 m</text>
+                <text class="el" x="410" y="130">Element 4</text><text class="sub" x="410" y="146">278 m</text>
+                <text class="el" x="530" y="130">Element 5</text><text class="sub" x="530" y="146">1172 m</text>
+                <text class="el" x="650" y="130">Element 6</text><text class="sub" x="650" y="146">1380 m</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Figure 2.</b> The grid of Figure 1 after adding a tributary between nodes 2 and 3 (not to scale). Two new nodes (orange) at 3350 and 3360 m create element 3, the 10 m inflow element. The grid now has 7 nodes and 6 elements.</figcaption>
+        </figure>
+        <h3>Step 2 · Assign radon to the new nodes</h3>
+        <p>Radon is usually measured in the river above the confluence and in the tributary itself. The upstream measurement goes to the first new node (node 3, for example 820 Bq/m³). The radon just below the confluence is calculated with a linear mixing model and goes to the second new node (node 4, for example 830 Bq/m³):</p>
+        <div class="math"><span class="f"><i>C</i><sub>after</sub> = <span class="frac"><span><i>Q</i>·<i>C</i><sub>before</sub> + <i>Q</i><sub>in</sub>·<i>c</i><sub>in</sub></span><span><i>Q</i> + <i>Q</i><sub>in</sub></span></span></span><span class="tag">Eq. 1</span></div>
+        <p><i>C</i><sub>before</sub> and <i>C</i><sub>after</sub> are the radon activities above and below the confluence, <i>Q</i> the river discharge, and <i>Q</i><sub>in</sub> and <i>c</i><sub>in</sub> the discharge and radon of the tributary. <a class="tool" href="radon_mixing_calculator.html">Confluence mixing →</a></p>
+        <h3>Step 3 · Fill in the inflow element</h3>
+        <ul>
+          <li>Column P: tributary discharge <i>Q</i><sub>in</sub>.</li>
+          <li>Column Q: inflow length, <b>identical to the reach length</b> in column J (10 m in the example).</li>
+          <li>Column R: tributary radon <i>c</i><sub>in</sub>.</li>
+          <li>All other columns as for a normal reach. For every other reach, P, Q and R are 0.</li>
+        </ul>
+        <p>In the <a href="finiflux_input_builder.html">input builder</a>, set the reach type to "Tributary". It highlights the three inflow fields and sets the next point's location to the previous location plus the inflow length, so the two lengths always match.</p>
+      </section>
+
+      <!-- 7 -->
+      <section id="running">
+        <h2><span class="no">7</span>Running FINIFLUX</h2>
+        <p><code>run_FINIFLUX.py</code> is the only file you run. It finds the input file, loads the selected backend, runs the model, writes the results and draws the figures.</p>
+<pre><code>python run_FINIFLUX.py                                # estimate parameters with the defaults
+python run_FINIFLUX.py --backend pytorch              # choose the PyTorch backend
+python run_FINIFLUX.py --mode forward                 # one forward run, no fitting
+python run_FINIFLUX.py --input selke.xlsx --out selke_run --show
+python run_FINIFLUX.py --rn-sigma-rel 0.1             # 10 % measurement uncertainty on radon
+python run_FINIFLUX.py --bedform-depth                # calculate h from bedform heights (column N)
+python run_FINIFLUX.py --adam 500 --lbfgs 150         # more optimisation iterations</code></pre>
+        <p>The defaults are set in the <code>CONFIG</code> dictionary at the top of <code>run_FINIFLUX.py</code>; edit them there if you always use the same settings. Every entry has a matching command-line flag. The table lists the values in the launcher at the time of writing.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Flag</th><th>Default</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="c">--input</td><td class="c">FINIFLUX.xlsx</td><td>Input file, relative to the script</td></tr>
+              <tr><td class="c">--backend</td><td class="c">tensorflow</td><td><code>pytorch</code> or <code>tensorflow</code></td></tr>
+              <tr><td class="c">--mode</td><td class="c">invert</td><td><code>invert</code> estimates parameters, <code>forward</code> runs the model once with the values in the file</td></tr>
+              <tr><td class="c">--out</td><td class="c">results</td><td>Output folder</td></tr>
+              <tr><td class="c">--plot</td><td class="c">&lt;out&gt;/finiflux_plots.png</td><td>Path of the main figure</td></tr>
+              <tr><td class="c">--show</td><td class="c">on</td><td>Also open the figure window</td></tr>
+              <tr><td class="c">--adam</td><td class="c">300</td><td>Adam warm-up steps (both backends)</td></tr>
+              <tr><td class="c">--lbfgs</td><td class="c">0</td><td>L-BFGS iterations after Adam (PyTorch only)</td></tr>
+              <tr><td class="c">--iter / --lr</td><td class="c">300 / 0.05</td><td>Adam iterations and learning rate (TensorFlow)</td></tr>
+              <tr><td class="c">--smooth</td><td class="c">0.001</td><td>Weight of the smoothness penalty between neighbouring reaches</td></tr>
+              <tr><td class="c">--quiet</td><td class="c">off</td><td>Hide the progress of each iteration</td></tr>
+              <tr><td class="c">--bedform-depth</td><td class="c">off</td><td>Calculate hyporheic depth from bedform heights (<a href="#bedform">8.3</a>)</td></tr>
+              <tr><td class="c">--uncertainty</td><td class="c">on</td><td>Estimate posterior uncertainty after the fit; <code>--no-uncertainty</code> skips it</td></tr>
+              <tr><td class="c">--unc-method</td><td class="c">gauss_newton</td><td><code>gauss_newton</code> (robust) or <code>full</code> Hessian</td></tr>
+              <tr><td class="c">--rn-sigma-abs / --rn-sigma-rel</td><td class="c">– / 0.1</td><td>Known radon measurement uncertainty, absolute (Bq/m³) or relative</td></tr>
+              <tr><td class="c">--endmember</td><td class="c">on</td><td>Groundwater-endmember uncertainty analysis (needs column U)</td></tr>
+              <tr><td class="c">--em-p-low / --em-p-high</td><td class="c">0.05 / 0.95</td><td>Percentiles of the endmember distribution used for the re-fits</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Using FINIFLUX as a library</h3>
+        <p>Each package can also be run directly, or imported in your own scripts and notebooks:</p>
+<pre><code>python -m finiflux_torch.cli invert FINIFLUX.xlsx
+python -m finiflux_tf.cli    invert FINIFLUX.xlsx</code></pre>
+<pre><code>from finiflux_torch import read_input, fit, write_results, plot_all, estimate_uncertainty
+data   = read_input("FINIFLUX.xlsx")
+result = fit(data)
+write_results(result, "results/")
+unc    = estimate_uncertainty(data, result)</code></pre>
+      </section>
+
+      <!-- 8 -->
+      <section id="inversion">
+        <h2><span class="no">8</span>Parameter estimation</h2>
+        <p>In <code>invert</code> mode FINIFLUX estimates three parameters for every reach: groundwater inflow <i>I</i>, hyporheic depth <i>h</i> and mean hyporheic residence time <i>t<sub>h</sub></i>. Because the whole model is differentiable, the gradient of the misfit with respect to all parameters is available at once, and the optimiser uses it directly. This replaces the BEOPEST calibration of the MATLAB version.</p>
+        <h3>Objective and regularisation</h3>
+        <ul>
+          <li><b>Parameters</b> are optimised as logarithms. This keeps them positive and puts parameters of very different size on a common scale.</li>
+          <li><b>Data misfit:</b> <code>Σ w_j·(C_j − Rn_obs,j)²</code> over all nodes, with weights <code>w_j = 1/max(Rn_obs,j, detection limit)²</code>. Small and large activities therefore count comparably, and values near the detection limit are not over-weighted.</li>
+          <li><b>Smoothness penalty</b> (<code>--smooth</code>, default 0.001): discourages large jumps between neighbouring reaches.</li>
+          <li><b>Prior anchor</b> (off by default): an optional pull toward the initial values, similar to the Tikhonov regularisation of the MATLAB version.</li>
+        </ul>
+        <h3>Bounds and optimiser</h3>
+        <ul>
+          <li><i>I</i> between 10⁻¹⁰ and 10⁻² m³/(m·s), <i>h</i> between 0.001 and 1 m, <i>t<sub>h</sub></i> between 60 s and 12 h. The bounds are enforced in every iteration.</li>
+          <li>Initial values: <i>h</i> from column N (0.5 m in the template), <i>t<sub>h</sub></i> 6 h, <i>I</i> a small default.</li>
+          <li>PyTorch: Adam warm-up, optionally followed by L-BFGS. TensorFlow: Adam.</li>
+        </ul>
+        <h3 id="bedform">Hyporheic depth from bedforms</h3>
+        <p>With <code>--bedform-depth</code>, <i>h</i> is calculated instead of estimated, from the bedform height <i>H</i> in column N, using the dynamic-head relation of Elliott &amp; Brooks (1997, after Fehlman, 1985):</p>
+        <div class="math"><span class="f"><i>h</i><sub>m</sub> = 0.28 · <span class="frac"><span><i>Ū</i>²</span><span>2<i>g</i></span></span> · (<span class="frac"><span><i>H</i></span><span>0.34 <i>d</i></span></span>)<sup><i>m</i></sup></span><span class="tag"><i>m</i> = 3/8 if <i>H</i>/<i>d</i> ≤ 0.34, else 3/2 · <i>Ū</i> = <i>Q</i>/(<i>w</i>·<i>d</i>)</span></div>
+        <p>The inversion then fits only <i>I</i> and <i>t<sub>h</sub></i>. This reduces the trade-off between the hyporheic parameters.</p>
+      </section>
+
+      <!-- 9 -->
+      <section id="uncertainty">
+        <h2><span class="no">9</span>Uncertainty analysis</h2>
+        <h3>9.1 Parameter uncertainty</h3>
+        <p>After the fit, FINIFLUX approximates the posterior distribution of the parameters around the best estimate (a Laplace approximation). The default <code>gauss_newton</code> method builds the curvature from the model's sensitivities and is always stable; <code>full</code> uses the exact second derivatives.</p>
+        <ul>
+          <li><b>Noise level:</b> by default the misfit weighting (the larger of the observation and the detection limit). If you know your measurement uncertainty, pass it with <code>--rn-sigma-abs</code> or <code>--rn-sigma-rel</code>; it also draws a ±σ band around the observations.</li>
+          <li><b>Results per reach:</b> best estimate, standard deviation and 95 % credible interval for <i>I</i>, <i>h</i> and <i>t<sub>h</sub></i>, written to <code>uncertainty.csv</code> and drawn as bands in the figure.</li>
+          <li><b>Identifiability report:</b> radon alone often cannot separate groundwater inflow from hyporheic exchange. The report lists the eigenvalues of the curvature matrix; near-zero values reveal parameter combinations the data cannot constrain.</li>
+        </ul>
+        <h3 id="endmember">9.2 Groundwater endmember uncertainty</h3>
+        <p>The radon activity of groundwater is usually the largest single source of error in radon-based inflow estimates: a higher endmember means less inflow is needed to explain the same river radon. If column U holds the endmember standard deviation, FINIFLUX treats each endmember as a normal distribution and repeats the fit with its low and high percentiles (5 % and 95 % by default). The resulting range of <i>I</i> and of cumulative inflow is drawn in a second figure and written to <code>endmember_uncertainty.csv</code>.</p>
+      </section>
+
+      <!-- 10 -->
+      <section id="outputs">
+        <h2><span class="no">10</span>Outputs</h2>
+        <p>All results are written to the output folder (<code>results/</code> by default):</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>File</th><th>Content</th><th>Unit</th></tr></thead>
+            <tbody>
+              <tr><td class="c">gw_inflow.dat</td><td>Groundwater inflow <i>I</i> per reach</td><td class="c">m³/(m·s)</td></tr>
+              <tr><td class="c">depth_hz.dat</td><td>Hyporheic depth <i>h</i> per reach (calculated in bedform mode)</td><td class="c">m</td></tr>
+              <tr><td class="c">rtimes_hz.dat</td><td>Mean hyporheic residence time <i>t<sub>h</sub></i> per reach</td><td class="c">s</td></tr>
+              <tr><td class="c">Rn_modeled.csv</td><td>Location and modelled radon at every node</td><td class="c">m, Bq/m³</td></tr>
+              <tr><td class="c">finiflux_plots.png</td><td>Main figure, five panels (below)</td><td></td></tr>
+              <tr><td class="c">uncertainty.csv</td><td>Per reach and parameter: best estimate, standard deviation, credible interval</td><td></td></tr>
+              <tr><td class="c">endmember_uncertainty.csv</td><td>Endmember percentiles, the re-fitted inflows and the resulting range</td><td></td></tr>
+              <tr><td class="c">finiflux_plots_endmember.png</td><td>Second figure with the endmember uncertainty</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The main figure stacks five panels along the river:</p>
+        <ol>
+          <li>Modelled against measured radon, with correlation and RMSE, and a ±σ band when a measurement uncertainty is given.</li>
+          <li>Groundwater inflow <i>I</i> with its credible-interval band.</li>
+          <li>Hyporheic depth <i>h</i> with its band.</li>
+          <li>Residence time <i>t<sub>h</sub></i> with its band.</li>
+          <li>Cumulative groundwater inflow compared with the observed increase in discharge: the water-balance check of <a href="#plausibility">section 11</a>, with a credible band.</li>
+        </ol>
+        <p>The y-axes of panels 2 to 5 follow the best estimates, so a very wide interval cannot flatten the curve; exact interval limits are in <code>uncertainty.csv</code>.</p>
+      </section>
+
+      <!-- 11 -->
+      <section id="plausibility">
+        <h2><span class="no">11</span>Checking plausibility</h2>
+        <p>A good fit to the radon data does not by itself mean the inflows are realistic. Always compare the estimated groundwater inflow with a simple water balance of the river. The increase in discharge between the first and last sampling point should be explained by groundwater and surface inflows:</p>
+        <div class="math"><span class="f">Δ<i>Q</i> = <i>Q</i><sub>last</sub> − <i>Q</i><sub>first</sub> &nbsp;≈&nbsp; <i>GW</i> + Σ <i>Q</i><sub>in</sub></span><span class="tag">Eq. 2</span></div>
+        <p>The total groundwater inflow is the sum over all reaches of the inflow per metre times the reach length:</p>
+        <div class="math"><span class="f"><i>GW</i> = Σ<sub><i>i</i>=1…<i>n</i></sub> <i>I<sub>i</sub></i> · Δ<i>x<sub>i</sub></i></span><span class="tag">Eq. 3</span></div>
+        <p>Accumulating <i>I<sub>i</sub>·Δx<sub>i</sub></i> from the first reach downstream and comparing it with the discharge difference at each sampling point shows where groundwater enters and how the two water-balance terms develop along the river. The Python edition draws exactly this comparison in panel 5 of the main figure; in the MATLAB version it had to be done by hand in a spreadsheet.</p>
+        <h3>Interpreting the comparison</h3>
+        <ul>
+          <li><b><i>GW</i> &lt; Δ<i>Q</i></b> is the usual result in gaining rivers: unmonitored, diffuse surface inflows also add water.</li>
+          <li><b><i>GW</i> &gt; Δ<i>Q</i></b> can be plausible in rivers that lose water to the aquifer in some reaches, or where water flows through gravel banks and meanders (parafluvial flow) and re-enters with a groundwater-like radon signal. FINIFLUX cannot separate this flow and counts it as groundwater.</li>
+        </ul>
+        <p>Example, Avon River: Δ<i>Q</i> = 0.291 − 0.145 = 0.146 m³/s with no tributaries, but <i>GW</i> = 0.738 m³/s. The Avon has losing reaches and substantial parafluvial flow, which explains the difference (Cartwright &amp; Hofmann, 2016).</p>
+      </section>
+
+      <!-- 12 -->
+      <section id="poorfit">
+        <h2><span class="no">12</span>If the fit is poor</h2>
+        <ul>
+          <li><b>The optimiser has not converged.</b> Increase <code>--adam</code> (and, with PyTorch, <code>--lbfgs</code>), or lower the learning rate <code>--lr</code> if the misfit jumps between iterations.</li>
+          <li><b>Reach-to-reach values are noisy.</b> Increase <code>--smooth</code> step by step (e.g. 0.01, 0.1) and check that the radon fit stays acceptable.</li>
+          <li><b>Strong mismatch at specific points.</b> Check degassing first: weirs, waterfalls and riffles degas far more than the empirical models assume. Use measured or weir-derived <i>k</i> (C8 = 3) for those reaches.</li>
+          <li><b>Mismatch below confluences.</b> Check the inflow elements: inflow length equal to reach length, correct tributary discharge and radon, and a mixed radon value at the node below.</li>
+          <li><b>Parameters at their bounds or very wide intervals.</b> Read the identifiability report. If <i>h</i> and <i>t<sub>h</sub></i> trade off against <i>I</i>, try <code>--bedform-depth</code>, switch hyporheic exchange off as a test, or add independent information.</li>
+          <li><b>Inflows that seem too large or small overall.</b> Revisit the groundwater endmember and run the endmember analysis (column U).</li>
+          <li><b>TensorFlow fails to import.</b> Install a wheel that matches your processor, or use <code>--backend pytorch</code>.</li>
+        </ul>
+      </section>
+
+      <!-- 13 -->
+      <section id="examples">
+        <h2><span class="no">13</span>Example datasets</h2>
+        <h3>Avon River, Australia (simple case)</h3>
+        <p>Radon data from Cartwright &amp; Hofmann (2016). The Avon River in the Gippsland Basin, Victoria, drains Mt. Wellington (664 m a.s.l.) and runs 122 km to Lake Wellington. About 30 % of the catchment lies in mountainous headwaters and 70 % in lowland plains, where the river has formed a wide gravel channel with riffle–pool sequences. The example uses 50 km of the middle and lower river. In the dry Australian climate there are no tributaries, and the river is a single channel fed only by groundwater, as close as it gets to an ideal two-box system. The coarse bed allows some hyporheic exchange.</p>
+        <p>The input contains only the basic data: no tributaries and no user degassing values. Reach lengths range from 700 m to 8 km and radon from 170 to 2000 Bq/m³, with a pronounced hot spot in the middle reaches. The groundwater endmember is held constant at 20 000 Bq/m³, and hyporheic exchange is switched on with a power-law RTD. Because the empirical degassing models were developed for rivers like this, the fit is excellent. The water balance is somewhat overestimated, because parafluvial flow through gravel banks and meanders, with residence times above 21 days, appears as groundwater.</p>
+        <figure>
+          <div class="box"><img src="assets/manual/avon_results.jpg" width="1386" height="980" alt="Avon River: measured and modelled radon along 50 km, with cumulative groundwater flux rising to about 15 000 cubic metres per day" loading="lazy"></div>
+          <figcaption><b>Figure 3.</b> Avon River: measured and modelled radon (left axis) and cumulative groundwater flux (right axis) against distance from the first sample in km. Measured against modelled r = 1.00. From the MATLAB version.</figcaption>
+        </figure>
+
+        <h3>Selke River, Germany (complex case)</h3>
+        <p>The Selke drains the Harz Mountains in central Germany and flows north to join the Bode. It starts in mountainous headwaters, crosses an upland plateau and then runs through gravel-bed lowlands with intensive agriculture. It has many tributaries, of which the largest were measured. Differential gauging shows that the lower river both loses and gains water: water leaves the channel in some reaches and rejoins it a few kilometres downstream. A waterfall in the middle reaches complicates degassing further.</p>
+        <ul>
+          <li><b>Tributaries:</b> five confluences are entered as 1 m inflow elements, recognisable in the node list as locations that increase by only 1 m. The node above each confluence has a measured radon activity; the node below has the mixed value from Eq. 1. <a class="tool" href="radon_mixing_calculator.html">Confluence mixing →</a></li>
+          <li><b>Waterfall:</b> the reach containing the waterfall is only 20 m long. Its radon loss was assumed to be due entirely to degassing, and <i>k</i> was calculated from it. <a class="tool" href="radon_weir_degassing.html">Weir and waterfall degassing →</a></li>
+          <li><b>Other reaches:</b> <i>k</i> was calculated offline with the O'Connor &amp; Dobbins model and entered as user values (C8 = 3). Measured degassing is always best but hard to obtain over long rivers; comparisons of conservative chloride and radon show that the empirical models perform well (Atkinson et al., 2013). <a class="tool" href="radon_degassing_calculator.html">Degassing models by reach →</a></li>
+        </ul>
+        <figure>
+          <div class="box"><img src="assets/manual/selke_results.jpg" width="1048" height="741" alt="Selke River: measured and modelled radon along about 65 km, with stepwise cumulative groundwater flux reaching about 14 500 cubic metres per day" loading="lazy"></div>
+          <figcaption><b>Figure 4.</b> Selke River: measured and modelled radon (left axis) and cumulative groundwater flux (right axis) against distance from the first sample in km. Measured against modelled r² = 0.997. From the MATLAB version.</figcaption>
+        </figure>
+        <p>The input files for both examples are included in the <code>Examples</code> folder of the FINIFLUX download. Open one in the <a href="finiflux_input_builder.html">input builder</a> to see its network and profile.</p>
+      </section>
+
+      <!-- A -->
+      <section id="legacy">
+        <h2><span class="no">A</span>The MATLAB / BEOPEST version</h2>
+        <p>The original FINIFLUX 2.x remains available and uses the same input file. This appendix summarises how it is installed and run.</p>
+        <h3>Downloads</h3>
+        <ul>
+          <li>Trier University (recommended; MATLAB source and compiled executables): <a href="https://olewiger-bach.uni-trier.de/downloads/index.php?dl=FINIFLUX_2.1_2025_for_download.zip" target="_blank" rel="noopener">FINIFLUX 2.1 download</a></li>
+          <li>University of Bayreuth (MATLAB source and compiled executables): <a href="http://www.hydro.uni-bayreuth.de/hydro/de/software/software/software_dl.php" target="_blank" rel="noopener">hydro.uni-bayreuth.de</a></li>
+          <li>GitHub (MATLAB source): <a href="https://github.com/saluisto/FINIFLUX" target="_blank" rel="noopener">github.com/saluisto/FINIFLUX</a></li>
+          <li>Video tutorial: <a href="https://www.youtube.com/watch?v=Z6qzxh9eMwY" target="_blank" rel="noopener">FINIFLUX on YouTube</a></li>
+        </ul>
+        <h3>Installation</h3>
+        <ul>
+          <li><b>Without a MATLAB licence:</b> on 64-bit Windows, run <code>Install_Finiflux.exe</code> with an internet connection. It downloads the MATLAB Runtime (about 700 MB). If the installer cannot reach the MATLAB server, install the Runtime for MATLAB 2015b (version 9.0) manually from <a href="https://www.mathworks.com/products/compiler/matlab-runtime.html" target="_blank" rel="noopener">mathworks.com</a>.</li>
+          <li><b>With a MATLAB licence:</b> compile <code>finiflux.m</code>, <code>pre_pest.m</code> and optionally <code>pest_progress.m</code> with the Application Compiler app; the executables appear in the <code>for_testing</code> folder.</li>
+          <li>If <code>pre_pest.exe</code> cannot copy files because <code>msvcp110.dll</code> is missing, install both the x64 and x86 Microsoft Visual C++ 2012 redistributables.</li>
+        </ul>
+        <h3>Running a calibration</h3>
+        <ol>
+          <li>Create a run folder (short name, no spaces) and copy <code>Beopest64.exe</code>, <code>FINIFLUX.exe</code>, <code>FINIFLUX.xlsx</code>, <code>pre_pest.exe</code>, <code>write_pest.exe</code>, optionally <code>pest_tracker.exe</code> and, for regularisation, <code>addreg1.exe</code> and <code>add.bat</code> into it.</li>
+          <li>Open a command prompt in the run folder and run <code>pre_pest.exe</code>. It creates the run files and the slave folders. Run it again after every change to the input file.</li>
+          <li>Find the computer name with <code>hostname</code>, then start the master: <code>Beopest64 finiflux /H :4004</code>.</li>
+          <li>Open a command prompt in each slave folder and start the slave: <code>Beopest64 finiflux /H hostname:4004</code>. Keep the computer from going to sleep.</li>
+          <li>Optionally follow progress with <code>pest_tracker.exe</code>: modelled against measured radon, correlation per iteration, and inflow per reach.</li>
+        </ol>
+        <p>If the optimisation fails or fits poorly, copy <code>addreg1.exe</code> and <code>add.bat</code> into the master and all slave folders, run <code>pre_pest.exe</code>, run <code>add.bat</code> in every folder to add Tikhonov regularisation, and then start master and slaves again.</p>
+        <h3>Results</h3>
+        <p>BEOPEST writes <code>finiflux.rec</code> (run record), <code>finiflux.sen</code> (parameter sensitivities) and <code>finiflux.res</code> (residuals) to the run folder. A final run with the best parameters, usually in <code>slave1</code>, writes <code>gw_inflow.dat</code>, <code>depth_hz.dat</code>, <code>rtimes_hz.dat</code> and <code>Rn_modeled.csv</code> with the same meaning as in the Python edition.</p>
+      </section>
+
+      <!-- B -->
+      <section id="references">
+        <h2><span class="no">B</span>References</h2>
+        <ul class="refs">
+          <li>Atkinson, A.P., Cartwright, I., Gilfedder, B.S., Hofmann, H., Unland, N.P., Cendón, D.I. &amp; Chisari, R. (2013). A multi-tracer approach to quantifying groundwater inflows to an upland river; assessing the influence of variable groundwater chemistry. <i>Hydrological Processes</i>. <a href="https://doi.org/10.1002/hyp.10122" target="_blank" rel="noopener">doi:10.1002/hyp.10122</a></li>
+          <li>Cartwright, I. &amp; Hofmann, H. (2016). Using radon to understand parafluvial flows and the changing locations of groundwater inflows in the Avon River, southeast Australia. <i>Hydrology and Earth System Sciences</i>, 20, 3581–3600. <a href="https://doi.org/10.5194/hess-20-3581-2016" target="_blank" rel="noopener">doi:10.5194/hess-20-3581-2016</a></li>
+          <li>Doherty, J.E. (2010). <i>Methodologies and Software for PEST-Based Model Predictive Uncertainty Analysis</i>. Watermark Numerical Computing, Brisbane, Australia.</li>
+          <li>Elliott, A.H. &amp; Brooks, N.H. (1997). Transfer of nonsorbing solutes to a streambed with bed forms: Theory. <i>Water Resources Research</i>, 33(1), 123–136.</li>
+          <li>Fehlman, H.M. (1985). <i>Resistance components and velocity distributions of open channel flows over bedforms</i>. MSc thesis, Colorado State University.</li>
+          <li>Frei, S. &amp; Gilfedder, B.S. (2015). FINIFLUX: An implicit finite element model for quantification of groundwater fluxes and hyporheic exchange in streams and rivers using radon. <i>Water Resources Research</i>, 51, 6776–6786. <a href="https://doi.org/10.1002/2015WR017212" target="_blank" rel="noopener">doi:10.1002/2015WR017212</a></li>
+          <li>Frei, S., Durejka, S., Le Lay, H., Thomas, Z. &amp; Gilfedder, B.S. (2019). Quantification of hyporheic nitrate removal at the reach scale: Exposure times versus residence times. <i>Water Resources Research</i>, 55(11), 9808–9825. <a href="https://doi.org/10.1029/2019WR025540" target="_blank" rel="noopener">doi:10.1029/2019WR025540</a></li>
+          <li>Negulescu, M. &amp; Rojanski, V. (1969). Recent research to determine reaeration coefficients. <i>Water Research</i>, 3, 189–202.</li>
+          <li>O'Connor, D.J. &amp; Dobbins, W.E. (1958). Mechanisms of reaeration in natural streams. <i>Transactions of the American Society of Civil Engineers</i>, 123(1), 641–666.</li>
+        </ul>
+        <p>Published studies that applied FINIFLUX are listed on the <a href="finiflux_documentation.html#publications">FINIFLUX documentation page</a>.</p>
+      </section>
+    </article>
+  </div>
+
+  <div class="author">
+    <div class="person">
+      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
+      <a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a>
+      <a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="person">
+      <span><b>Benjamin Silas Gilfedder</b> · Hydrology, Trier University</span>
+      <a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a>
+      <a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

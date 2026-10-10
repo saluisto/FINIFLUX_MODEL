@@ -67,6 +67,10 @@
   .desc { color: var(--muted); font-size: 14px; }
   footer { font-size: 12.5px; color: var(--muted); }
   .cat { display: grid; gap: 14px; scroll-margin-top: 16px; }
+  .codebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; }
+  .codebar span { font-size: 13.5px; color: var(--fg); flex: 1 1 260px; }
+  .codebtn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14.5px; color: var(--surface); background: var(--accent); border-radius: 8px; padding: 9px 16px; text-decoration: none; }
+  .codebtn:hover, .codebtn:focus-visible { filter: brightness(1.08); outline: 2px solid var(--accent); outline-offset: 2px; }
   .cat-head { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   .cat-head h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; }
   .cat-head p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -150,7 +154,18 @@
   </section>
   <section class="cat" id="finiflux">
     <div class="cat-head"><h2>FINIFLUX model</h2><p>The finite-element radon mass-balance model for groundwater discharge and hyporheic exchange.</p></div>
+    <div class="codebar">
+      <a class="codebtn" href="assets/FINIFLUX_python.zip" download>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 12v2h12v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download FINIFLUX for Python
+      </a>
+      <span>.zip · 93 KB · PyTorch and TensorFlow versions, launcher, README and an example input file. Needs Python 3.9+.</span>
+    </div>
     <nav class="grid">
+      <a class="card" href="finiflux_manual.html">
+        <span class="name">User manual</span>
+        <span class="desc">Step-by-step guide: model concept, preparing the input file, tributaries, running the model, uncertainty, checking results and worked examples. Also as PDF.</span>
+      </a>
       <a class="card" href="finiflux_documentation.html">
         <span class="name">Documentation</span>
         <span class="desc">What FINIFLUX does, how to install and run the Python edition, the equations, uncertainty analysis, input and output files, and publications.</span>
