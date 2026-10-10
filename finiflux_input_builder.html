@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>FINIFLUX Input Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: model options panel, then the wide point/reach table (scrolls sideways), then status + export bar. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --err: #b3261e;
+    --err-soft: #fbe3e1;
+    --ok: #1d7a46;
+    --ok-soft: #dcf1e4;
+    --trib: #c4561b;
+    --qcol: #2a78d6;
+    --grid: #e6edee;
+    --trib-soft: #fbe9dd;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40;
+      --err: #f2867e; --err-soft: #3a2220; --ok: #6fcf97; --ok-soft: #1c3528;
+      --trib: #f0985e; --trib-soft: #3a2a1f; --qcol: #3987e5; --grid: #22323a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40;
+    --err: #f2867e; --err-soft: #3a2220; --ok: #6fcf97; --ok-soft: #1c3528;
+    --trib: #f0985e; --trib-soft: #3a2a1f; --qcol: #3987e5; --grid: #22323a;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 76ch; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  button, .filebtn { font: 500 13.5px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  button:hover, .filebtn:hover { border-color: var(--accent); }
+  button:focus-visible, input:focus-visible, select:focus-visible, .filebtn:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; padding: 9px 18px; font-size: 14.5px; }
+  button.icon { padding: 3px 8px; color: var(--muted); }
+  button.icon:hover { color: var(--err); border-color: var(--err); }
+  .filebtn input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  /* options */
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 14px 20px; }
+  .opt { display: grid; gap: 4px; align-content: start; }
+  .opt label { font-weight: 500; font-size: 14px; }
+  .opt .cell { font: 11.5px var(--mono); color: var(--muted); margin-left: 6px; }
+  .opt input, .opt select { font: 500 14px var(--mono); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; width: 100%; min-width: 0; }
+  .opt select { font-family: var(--body); }
+  .opt .hint { font-size: 12.5px; color: var(--muted); }
+  .opt.off { opacity: .45; }
+  .opt input.bad { border-color: var(--err); }
+
+  /* fill tool */
+  .fill { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13.5px; color: var(--muted); padding: 10px 12px; background: var(--bg); border-radius: 8px; }
+  .fill select, .fill input { font: 500 13.5px var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  .fill input { font-family: var(--mono); width: 110px; }
+
+  /* table */
+  .scroll { overflow-x: auto; min-width: 0; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 5px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: left; }
+  thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  th.grp { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 600; text-align: center; border-bottom: 2px solid var(--line); }
+  th.grp.node { border-bottom-color: var(--accent); }
+  th.col { font-size: 12px; font-weight: 600; color: var(--fg); vertical-align: bottom; line-height: 1.25; }
+  th.col .u { display: block; font: 400 11px var(--mono); color: var(--muted); }
+  th.col .x { display: block; font: 400 10.5px var(--mono); color: var(--muted); opacity: .8; }
+  td.idx { font: 500 12px var(--mono); color: var(--muted); text-align: right; padding-inline: 10px 6px; }
+  td.len { font: 500 13px var(--mono); color: var(--muted); text-align: right; min-width: 70px; }
+  td input { width: 92px; font: 500 13px var(--mono); color: var(--fg); background: var(--bg); border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; text-align: right; }
+  td input:hover { border-color: var(--line); }
+  td input:focus { border-color: var(--accent); background: var(--surface); outline: none; }
+  td input.bad { border-color: var(--err); background: var(--err-soft); }
+  td input:disabled { background: transparent; color: transparent; border-color: transparent; cursor: default; }
+  td.sep, th.sep { border-left: 1px solid var(--line); }
+  tr.last td.reachcell { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--bg) 6px 7px); }
+  .hide-hz .c-hz, .hide-k .c-k { display: none; }
+  td select.type { font: 500 13px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; }
+  td select.type.trib { color: var(--trib); border-color: var(--trib); background: var(--trib-soft); font-weight: 600; }
+  td select.type:disabled { visibility: hidden; }
+  td input.auto { color: var(--muted); background: transparent; border-color: transparent; cursor: not-allowed; }
+  td.need { background: var(--trib-soft); }
+  td.len.tlen { color: var(--trib); font-weight: 600; }
+  td.len.tlen small { display: block; font: 500 10.5px var(--body); color: var(--trib); }
+  td input.auto.linked { color: var(--trib); }
+  td.need input { border-color: var(--trib); background: var(--surface); }
+  td.need input.bad { border-color: var(--err); background: var(--err-soft); }
+
+  /* network */
+  .net-wrap { overflow-x: auto; min-width: 0; }
+  .net-wrap svg { display: block; }
+  .net-wrap text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .net-wrap .nnum { font-family: var(--body); font-size: 12px; font-weight: 600; fill: var(--surface); }
+  .net-wrap .rn { font-size: 11.5px; font-weight: 500; fill: var(--fg); }
+  .net-wrap .rnum { font-family: var(--body); font-size: 11px; font-weight: 600; fill: var(--fg); }
+  .net-wrap .tlab { fill: var(--trib); font-weight: 500; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--muted); align-items: center; }
+  .legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+  .profile { position: relative; }
+  .profile svg { width: 100%; height: auto; display: block; }
+  .profile text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .profile .ttl { font-family: var(--body); font-size: 12px; font-weight: 500; fill: var(--fg); }
+  .ptip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12.5px; box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; z-index: 2; }
+  .ptip .mono { font-family: var(--mono); }
+  .empty { padding: 22px 12px; color: var(--muted); text-align: center; }
+  .rowact { display: flex; gap: 4px; }
+  button.icon.ins:hover { color: var(--accent); border-color: var(--accent); }
+  tr.fresh td { background: var(--accent-soft); }
+  @media (prefers-reduced-motion: no-preference) { tr.fresh td { transition: background 1.2s ease; } }
+  .note { font-size: 13px; color: var(--muted); margin: 0; max-width: 92ch; }
+
+  /* status + export */
+  .export { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--muted); }
+  .stats b { font: 500 14px var(--mono); color: var(--fg); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 3px 11px; }
+  .chip.ok { color: var(--ok); background: var(--ok-soft); }
+  .chip.bad { color: var(--err); background: var(--err-soft); }
+  .problems { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--err); display: grid; gap: 2px; }
+  .toast { font-size: 13.5px; color: var(--ok); font-weight: 500; }
+
+  .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+  .author b { color: var(--fg); font-weight: 600; }
+  .author a { color: var(--accent); text-decoration: none; }
+  .author a:hover, .author a:focus-visible { text-decoration: underline; }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · FINIFLUX</div>
+    <h1>FINIFLUX input builder</h1>
+    <p class="lede">Set the model options, enter your radon sampling points and the properties of each reach between them, and download a ready-to-run <span style="font-family:var(--mono)">FINIFLUX.xlsx</span>. The file follows the layout of the FINIFLUX template (sheet Tabelle1) and works with the MATLAB model and the Python version.</p>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Model options</h2></div>
+    <div class="opts">
+      <div class="opt">
+        <label for="o-degas">Degassing model<span class="cell">C8</span></label>
+        <select id="o-degas">
+          <option value="1">1 · O'Connor &amp; Dobbins (1958)</option>
+          <option value="2">2 · Negulescu &amp; Rojanski (1969)</option>
+          <option value="3">3 · User-defined k per reach</option>
+        </select>
+        <span class="hint">Option 3 adds a k column to the reach table.</span>
+      </div>
+      <div class="opt">
+        <label for="o-hz">Hyporheic zone<span class="cell">C13</span></label>
+        <select id="o-hz"><option value="1">1 · On</option><option value="0">0 · Off</option></select>
+      </div>
+      <div class="opt" id="w-distr">
+        <label for="o-distr">HZ residence time distribution<span class="cell">C17</span></label>
+        <select id="o-distr">
+          <option value="1">1 · Exponential</option>
+          <option value="2">2 · Power law with cutoff</option>
+          <option value="3">3 · Gamma</option>
+        </select>
+      </div>
+      <div class="opt" id="w-alpha">
+        <label for="o-alpha">Gamma shape α<span class="cell">C22</span></label>
+        <input id="o-alpha" type="text" inputmode="decimal">
+        <span class="hint">Used only by the gamma distribution.</span>
+      </div>
+      <div class="opt">
+        <label for="o-beta">Upstream weight β<span class="cell">C24</span></label>
+        <input id="o-beta" type="text" inputmode="decimal">
+        <span class="hint">0 = off, &gt; 0 = on. 0.5 is recommended.</span>
+      </div>
+      <div class="opt">
+        <label for="o-cpus">Number of CPUs<span class="cell">C6</span></label>
+        <input id="o-cpus" type="text" inputmode="numeric">
+      </div>
+      <div class="opt">
+        <label for="o-path">Path for FINIFLUX simulation<span class="cell">C4</span></label>
+        <input id="o-path" type="text" placeholder="e.g. D:\FINIFLUX\run1">
+        <span class="hint">Run folder for the compiled Windows version. Optional.</span>
+      </div>
+      <div class="opt">
+        <label for="o-detect">Radon detection limit<span class="cell">C28</span></label>
+        <input id="o-detect" type="text" inputmode="decimal" placeholder="optional, Bq/m³">
+        <span class="hint">Read by the Python version only. Leave empty to skip.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Sampling points and reaches</h2>
+      <div class="actions">
+        <button type="button" id="add">+ Add point</button>
+        <label class="filebtn">Open existing FINIFLUX.xlsx<input type="file" id="open" accept=".xlsx,.xls"></label>
+        <button type="button" id="example">Load example</button>
+        <button type="button" id="clear">Clear table</button>
+      </div>
+    </div>
+    <p class="note">Each row is a radon sampling point. The reach values in a row describe the stretch from that point to the next one, so the last point has no reach. You can paste a block of cells copied from Excel into any field; it fills the cells to the right and below and adds rows when needed. Forgot a point? Use <b>+</b> at the end of a row to insert a point below it. This splits that reach in two, and the new reach takes over its properties.</p>
+    <div class="fill">
+      <span>Set</span>
+      <select id="fill-col" aria-label="Column to fill"></select>
+      <span>to</span>
+      <input id="fill-val" type="text" inputmode="decimal" aria-label="Value">
+      <button type="button" id="fill-empty">Fill empty cells</button>
+      <button type="button" id="fill-all">Overwrite all reaches</button>
+    </div>
+    <div class="scroll" id="tableWrap">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="note">Choose the type of each reach first. A <b>normal reach</b> has no surface inflow, and its inflow values are set to 0. For a <b>tributary reach</b>, fill in the highlighted inflow discharge, inflow length and inflow radon. The length of a tributary reach must equal its inflow length, so the location of the next point is set automatically to the previous point's location plus the inflow length (shown in orange and locked). A tributary is usually entered as a short reach of about 1 m at the confluence.</p>
+  </section>
+
+  <section class="panel">
+    <div class="export">
+      <div class="stats">
+        <span><b id="s-nodes">0</b> points</span>
+        <span><b id="s-reaches">0</b> reaches</span>
+        <span><b id="s-length">0</b> km total</span>
+        <span id="chip" class="chip ok">Ready</span>
+      </div>
+      <div class="actions">
+        <span class="toast" id="toast" hidden></span>
+        <button type="button" class="primary" id="download">Download FINIFLUX.xlsx</button>
+      </div>
+    </div>
+    <ul class="problems" id="problems" hidden></ul>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>River network</h2></div>
+    <div class="legend">
+      <span><i style="width:14px;height:14px;border-radius:50%;background:var(--accent)"></i>Sampling point (number, measured Rn in Bq/m³, location)</span>
+      <span><i style="width:22px;height:3px;background:var(--muted)"></i>Normal reach (number)</span>
+      <span><i style="width:22px;height:3px;background:var(--trib)"></i>Tributary reach with surface inflow</span>
+    </div>
+    <div class="net-wrap" id="netWrap"><svg id="net" role="img" aria-label="Schematic river network: sampling points as numbered nodes joined by numbered reaches"></svg></div>
+    <p class="note">The diagram is schematic: points are evenly spaced, not to scale. Hover over a point or reach for its details.</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Radon and discharge along the river</h2></div>
+    <div class="legend">
+      <span><i style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></i>Measured Rn at sampling points (left axis, Bq/m³)</span>
+      <span><i style="width:22px;height:3px;background:var(--qcol)"></i>River discharge per reach (right axis, m³/s)</span>
+      <span><i style="width:3px;height:12px;background:var(--trib)"></i>Tributary inflow</span>
+    </div>
+    <div class="profile" id="profBox">
+      <svg id="prof" viewBox="0 0 960 330" role="img" aria-label="Measured radon at each sampling point and river discharge per reach plotted against distance downstream"></svg>
+      <div class="ptip" id="ptip" hidden></div>
+    </div>
+    <p class="note">Distances are to scale. Discharge is drawn as a constant value over each reach. Hover over the plot to read the values at a location.</p>
+  </section>
+
+  <div class="author">
+    <div class="person">
+      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
+      <a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a>
+      <a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="person">
+      <span><b>Benjamin Silas Gilfedder</b> · Hydrology, Trier University</span>
+      <a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a>
+      <a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  // ---------- column model ----------
+  // key, label, unit, sheet column, kind: node | reach ; cls for hide toggles
+  const COLS = [
+    { key: "x",   label: "Location",      unit: "m",     xl: "F", kind: "node" },
+    { key: "rn",  label: "Measured Rn",   unit: "Bq/m³", xl: "G", kind: "node" },
+    { key: "d",   label: "Depth",         unit: "m",     xl: "K", kind: "reach" },
+    { key: "w",   label: "Width",         unit: "m",     xl: "L", kind: "reach" },
+    { key: "q",   label: "Discharge",     unit: "m³/s",  xl: "S", kind: "reach" },
+    { key: "cgw", label: "GW endmember",  unit: "Bq/m³", xl: "M", kind: "reach", sep: true },
+    { key: "sd",  label: "Endmember SD",  unit: "Bq/m³", xl: "U", kind: "reach", opt: true },
+    { key: "h",   label: "HZ depth",      unit: "m",     xl: "N", kind: "reach", cls: "c-hz", sep: true },
+    { key: "por", label: "HZ porosity",   unit: "–",     xl: "O", kind: "reach", cls: "c-hz" },
+    { key: "qin", label: "Inflow Q",      unit: "m³/s",  xl: "P", kind: "reach", sep: true },
+    { key: "lin", label: "Inflow length", unit: "m",     xl: "Q", kind: "reach" },
+    { key: "cin", label: "Inflow Rn",     unit: "Bq/m³", xl: "R", kind: "reach" },
+    { key: "k",   label: "Degassing k",   unit: "m/d",   xl: "T (m/s)", kind: "reach", cls: "c-k", sep: true },
+  ];
+  const EDIT = COLS.map((c) => c.key);
+
+  // Example: the Schaefer et al. dataset shipped with FINIFLUX (FINIFLUX_ex.xlsx).
+  const EXAMPLE = {
+    opts: { path: "", cpus: "4", degas: "3", hz: "1", distr: "2", alpha: "0.5", beta: "0.5", detect: "" },
+    rows: [
+      { x: "0",    rn: "5924", d: "0.1",  w: "0.2", q: "0.00518",  cgw: "23200", h: "0.1", por: "0.2", k: "17.28" },
+      { x: "210",  rn: "5403", d: "0.1",  w: "0.2", q: "0.006345", cgw: "23200", h: "0.1", por: "0.2", k: "20.00" },
+      { x: "490",  rn: "6227", d: "0.15", w: "0.5", q: "0.00642",  cgw: "23200", h: "0.1", por: "0.2", k: "8.457" },
+      { x: "650",  rn: "2671", d: "0.2",  w: "0.3", q: "0.006295", cgw: "23200", h: "0.1", por: "0.2", k: "12.21" },
+      { x: "850",  rn: "1543", d: "0.2",  w: "0.3", q: "0.005845", cgw: "23200", h: "0.1", por: "0.2", k: "11.58" },
+      { x: "1050", rn: "915" },
+    ],
+  };
+  const STORE = "finiflux-input-builder";
+  const $ = (id) => document.getElementById(id);
+  const num = (s) => { const t = String(s ?? "").trim().replace(",", "."); if (t === "") return null; const v = Number(t); return Number.isFinite(v) ? v : NaN; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fmt = (v, dp) => v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const INFLOW = ["qin", "lin", "cin"];
+  const blankRow = () => ({ ...Object.fromEntries(EDIT.map((k) => [k, ""])), type: "normal" });
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  // Rows without a type (older drafts, imported files): tributary if it has a surface inflow.
+  const normRow = (r) => {
+    const row = { ...blankRow(), ...r };
+    if (r.type !== "normal" && r.type !== "trib") row.type = num(row.qin) > 0 ? "trib" : "normal";
+    if (row.type === "normal") for (const k of INFLOW) row[k] = "0";
+    return row;
+  };
+
+  let state;
+  try { state = JSON.parse(localStorage.getItem(STORE)); } catch (e) { state = null; }
+  if (!state || !Array.isArray(state.rows) || !state.opts) state = clone(EXAMPLE);
+  state.rows = state.rows.map(normRow);
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
+
+
+  // ---------- options ----------
+  const OPT_IDS = ["path", "cpus", "degas", "hz", "distr", "alpha", "beta", "detect"];
+  function loadOpts() { for (const k of OPT_IDS) $("o-" + k).value = state.opts[k] ?? ""; applyOptVisibility(); }
+  function applyOptVisibility() {
+    const hzOn = state.opts.hz === "1";
+    $("w-distr").classList.toggle("off", !hzOn);
+    $("w-alpha").classList.toggle("off", !(hzOn && state.opts.distr === "3"));
+    $("tableWrap").classList.toggle("hide-hz", !hzOn);
+    $("tableWrap").classList.toggle("hide-k", state.opts.degas !== "3");
+    buildFillSelect();
+  }
+
+  // ---------- table ----------
+  function visibleCols() {
+    return COLS.filter((c) => !(c.cls === "c-hz" && state.opts.hz !== "1") && !(c.cls === "c-k" && state.opts.degas !== "3"));
+  }
+
+  function renderHead() {
+    const g = (label, span, cls = "") => `<th class="grp ${cls}" colspan="${span}">${label}</th>`;
+    $("thead").innerHTML = `
+      <tr>
+        <th class="grp" rowspan="2"></th>
+        ${g("Sampling point", 2, "node")}
+        ${g("Reach to next point", 5, "sep")}
+        ${g("Groundwater", 2, "sep")}
+        <th class="grp sep c-hz" colspan="2">Hyporheic zone</th>
+        ${g("Surface inflow", 3, "sep")}
+        <th class="grp sep c-k">Degassing</th>
+        <th class="grp" rowspan="2"></th>
+      </tr>
+      <tr>
+        ${COLS.slice(0, 2).map(colHead).join("")}
+        <th class="col sep">Length<span class="u">m</span><span class="x">J</span></th>
+        <th class="col">Reach type<span class="u">&nbsp;</span><span class="x">&nbsp;</span></th>
+        ${COLS.slice(2).map(colHead).join("")}
+      </tr>`;
+  }
+  function colHead(c) {
+    return `<th class="col ${c.cls || ""} ${c.sep ? "sep" : ""}">${c.label}<span class="u">${c.unit}${c.opt ? " · optional" : ""}</span><span class="x">${c.xl}</span></th>`;
+  }
+
+  function renderBody() {
+    const n = state.rows.length;
+    if (!n) {
+      $("tbody").innerHTML = `<tr><td colspan="17" class="empty">No sampling points yet. Add points, paste from Excel, open an existing FINIFLUX.xlsx or load the example.</td></tr>`;
+      update(); return;
+    }
+    $("tbody").innerHTML = state.rows.map((r, i) => {
+      const last = i === n - 1;
+      const trib = r.type === "trib";
+      const cell = (c) => {
+        const isReach = c.kind === "reach";
+        const isInflow = INFLOW.includes(c.key);
+        let attr = isReach && last ? "disabled" : "";
+        if (!last && isInflow && !trib) attr = `readonly tabindex="-1" class="auto" title="Normal reach: no surface inflow"`;
+        if (c.key === "x" && i > 0 && state.rows[i - 1].type === "trib")
+          attr = `readonly tabindex="-1" class="auto linked" title="Set automatically: location of point ${i} + inflow length of tributary reach ${i}"`;
+        const need = !last && isInflow && trib ? "need" : "";
+        const ph = need ? `placeholder="${c.key === "lin" ? "e.g. 1" : "required"}"` : "";
+        return `<td class="${c.cls || ""} ${c.sep ? "sep" : ""} ${isReach ? "reachcell" : ""} ${need}"><input id="c-${i}-${c.key}" data-i="${i}" data-k="${c.key}" type="text" inputmode="decimal" value="${esc(r[c.key] ?? "")}" ${attr} ${ph} aria-label="${c.label} row ${i + 1}"></td>`;
+      };
+      return `<tr class="${last ? "last" : ""}">
+        <td class="idx">${i + 1}</td>
+        ${COLS.slice(0, 2).map(cell).join("")}
+        <td class="len sep reachcell ${trib && !last ? "tlen" : ""}" id="len-${i}" ${trib && !last ? `title="Tributary reach: length equals the inflow length"` : ""}>${last ? "" : "–"}</td>
+        <td class="reachcell"><select class="type ${trib ? "trib" : ""}" id="t-${i}" data-type="${i}" ${last ? "disabled" : ""} aria-label="Reach type row ${i + 1}">
+          <option value="normal" ${trib ? "" : "selected"}>Normal reach</option>
+          <option value="trib" ${trib ? "selected" : ""}>Tributary</option>
+        </select></td>
+        ${COLS.slice(2).map(cell).join("")}
+        <td><div class="rowact">
+          <button type="button" class="icon ins" data-ins="${i}" title="Insert a point below point ${i + 1}${last ? "" : ` (splits reach ${i + 1})`}" aria-label="Insert a point below point ${i + 1}">+</button>
+          <button type="button" class="icon" data-del="${i}" title="Remove point ${i + 1}" aria-label="Remove point ${i + 1}">✕</button>
+        </div></td>
+      </tr>`;
+    }).join("");
+    update();
+  }
+
+  // ---------- validation ----------
+  function validate() {
+    const o = state.opts, rows = state.rows, n = rows.length;
+    const errs = [], bad = new Set();
+    const hzOn = o.hz === "1", deg3 = o.degas === "3";
+    const where = (i, key) => (key === "x" || key === "rn" ? `Point ${i + 1}` : `Reach ${i + 1}`);
+    const need = (i, key, test, msg) => {
+      const v = num(rows[i][key]);
+      if (v === null || Number.isNaN(v) || !test(v)) { bad.add(`${i}:${key}`); errs.push(`${where(i, key)}: ${msg}`); }
+    };
+    const optional = (i, key, test, msg) => {
+      const v = num(rows[i][key]);
+      if (v !== null && (Number.isNaN(v) || !test(v))) { bad.add(`${i}:${key}`); errs.push(`${where(i, key)}: ${msg}`); }
+    };
+    if (n < 2) errs.push("Add at least two sampling points (one reach).");
+    for (let i = 0; i < n; i++) {
+      need(i, "x", (v) => v >= 0, "location is missing or negative");
+      if (i > 0) {
+        const a = num(rows[i - 1].x), b = num(rows[i].x);
+        if (a !== null && b !== null && !(b > a)) { bad.add(`${i}:x`); errs.push(`Point ${i + 1}: location must be larger than the previous point`); }
+      }
+      need(i, "rn", (v) => v >= 0, "measured radon is missing");
+      if (i === n - 1) continue;
+      need(i, "d", (v) => v > 0, "depth must be above 0");
+      need(i, "w", (v) => v > 0, "width must be above 0");
+      need(i, "q", (v) => v > 0, "discharge must be above 0");
+      need(i, "cgw", (v) => v >= 0, "groundwater endmember is missing");
+      optional(i, "sd", (v) => v >= 0, "endmember SD cannot be negative");
+      if (hzOn) {
+        need(i, "h", (v) => v > 0, "hyporheic depth must be above 0");
+        need(i, "por", (v) => v > 0 && v <= 1, "porosity must be between 0 and 1");
+      }
+      if (rows[i].type === "trib") {
+        need(i, "qin", (v) => v > 0, "tributary reach needs an inflow discharge above 0");
+        need(i, "lin", (v) => v > 0, "tributary reach needs an inflow length above 0");
+        need(i, "cin", (v) => v >= 0, "tributary reach needs the inflow radon concentration");
+      }
+      if (deg3) need(i, "k", (v) => v >= 0, "degassing k is needed for degassing model 3");
+    }
+    const optBad = new Set();
+    const chk = (key, ok, msg) => { if (!ok) { optBad.add(key); errs.unshift(msg); } };
+    const cpus = num(o.cpus), beta = num(o.beta), alpha = num(o.alpha), det = num(o.detect);
+    chk("cpus", cpus !== null && Number.isInteger(cpus) && cpus >= 1, "Options: number of CPUs must be a whole number of 1 or more");
+    chk("beta", beta !== null && beta >= 0, "Options: upstream weight must be 0 or more");
+    if (hzOn && o.distr === "3") chk("alpha", alpha !== null && alpha > 0, "Options: gamma shape α must be above 0");
+    chk("detect", det === null || det >= 0, "Options: detection limit must be a number");
+    return { errs, bad, optBad };
+  }
+
+  // A tributary reach is exactly as long as its inflow length:
+  // the next point's location = this point's location + inflow length.
+  function syncTributaries() {
+    const rows = state.rows;
+    for (let i = 0; i < rows.length - 1; i++) {
+      if (rows[i].type !== "trib") continue;
+      const x = num(rows[i].x), l = num(rows[i].lin);
+      if (x === null || Number.isNaN(x) || l === null || Number.isNaN(l) || l <= 0) continue;
+      const nx = String(+(x + l).toFixed(6));
+      if (rows[i + 1].x !== nx) {
+        rows[i + 1].x = nx;
+        const el = $(`c-${i + 1}-x`); if (el) el.value = nx;
+      }
+    }
+  }
+
+  function update() {
+    syncTributaries();
+    const { errs, bad, optBad } = validate();
+    const rows = state.rows, n = rows.length;
+    // cell marks + computed lengths
+    for (let i = 0; i < n; i++) {
+      for (const k of EDIT) { const el = $(`c-${i}-${k}`); if (el) el.classList.toggle("bad", bad.has(`${i}:${k}`)); }
+      const lc = $(`len-${i}`);
+      if (lc && i < n - 1) {
+        const a = num(rows[i].x), b = num(rows[i + 1].x);
+        const t = a !== null && b !== null && b > a ? fmt(b - a, Number.isInteger(b - a) ? 0 : 2) : "–";
+        if (rows[i].type === "trib") lc.innerHTML = `${t}<small>= inflow length</small>`; else lc.textContent = t;
+      }
+    }
+    for (const k of ["cpus", "beta", "alpha", "detect"]) $("o-" + k).classList.toggle("bad", optBad.has(k));
+    // stats
+    $("s-nodes").textContent = n;
+    $("s-reaches").textContent = Math.max(n - 1, 0);
+    const x0 = num(rows[0]?.x), x1 = num(rows[n - 1]?.x);
+    $("s-length").textContent = n > 1 && x0 !== null && x1 !== null && !Number.isNaN(x0) && !Number.isNaN(x1) ? fmt((x1 - x0) / 1000, 2) : "–";
+    const chip = $("chip");
+    chip.className = "chip " + (errs.length ? "bad" : "ok");
+    chip.textContent = errs.length ? `${errs.length} problem${errs.length > 1 ? "s" : ""} to fix` : "Ready to download";
+    const list = $("problems");
+    list.innerHTML = errs.slice(0, 10).map((e) => `<li>${esc(e)}</li>`).join("") + (errs.length > 10 ? `<li>…and ${errs.length - 10} more</li>` : "");
+    list.hidden = !errs.length;
+    drawNetwork();
+    drawProfile();
+    save();
+    return errs;
+  }
+
+  // ---------- network diagram ----------
+  function niceStep(span, target = 5) {
+    const raw = span / target, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+    return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p;
+  }
+  function niceTicks(max) {
+    const step = niceStep(max), top = Math.ceil(max / step) * step || step, t = [];
+    for (let v = 0; v <= top + step / 1e6; v += step) t.push(+v.toPrecision(12));
+    return { top, ticks: t, step };
+  }
+  const tick = (v, step) => fmt(v, step >= 1 ? 0 : Math.min(4, Math.ceil(-Math.log10(step))));
+
+  let profData = null;
+  function drawProfile() {
+    const svg = $("prof"), rows = state.rows, n = rows.length;
+    const W = 960, H = 330, pl = 70, pr = 76, pt = 18, pb = 50, iw = W - pl - pr, ih = H - pt - pb;
+    const ok = (v) => v !== null && !Number.isNaN(v);
+    const nodes = rows.map((r, i) => ({ i, x: num(r.x), rn: num(r.rn) })).filter((p) => ok(p.x) && ok(p.rn));
+    const reaches = [];
+    for (let i = 0; i < n - 1; i++) {
+      const a = num(rows[i].x), b = num(rows[i + 1].x), q = num(rows[i].q);
+      if (ok(a) && ok(b) && b > a && ok(q)) reaches.push({ i, a, b, q, trib: rows[i].type === "trib", qin: num(rows[i].qin) });
+    }
+    if (nodes.length < 2) {
+      svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Enter locations and measured radon for at least two points to see the profile.</text>`;
+      profData = null; return;
+    }
+    const xs = nodes.map((p) => p.x), x0 = Math.min(...xs), x1 = Math.max(...xs);
+    const km = x1 - x0 >= 2000, unit = km ? 1000 : 1;
+    const sx = (x) => pl + ((x - x0) / (x1 - x0 || 1)) * iw;
+    const R = niceTicks(Math.max(...nodes.map((p) => p.rn), 1));
+    const syR = (v) => pt + (1 - v / R.top) * ih;
+    const Q = niceTicks(Math.max(...reaches.map((r) => r.q), 1e-6));
+    const syQ = (v) => pt + (1 - v / Q.top) * ih;
+
+    let s = "";
+    // grid + left (Rn) ticks
+    for (const t of R.ticks) {
+      s += `<line x1="${pl}" x2="${W - pr}" y1="${syR(t)}" y2="${syR(t)}" stroke="var(--grid)"/>`;
+      s += `<text x="${pl - 8}" y="${syR(t) + 4}" text-anchor="end">${tick(t, R.step)}</text>`;
+    }
+    // right (Q) ticks: placed at their own scale positions
+    for (const t of Q.ticks) s += `<text x="${W - pr + 8}" y="${syQ(t) + 4}">${tick(t, Q.step)}</text>`;
+    // x ticks
+    const xs0 = x0 / unit, xs1 = x1 / unit, xst = niceStep(xs1 - xs0 || 1, 8);
+    for (let v = Math.ceil(xs0 / xst) * xst; v <= xs1 + xst / 1e6; v += xst) {
+      const X = sx(v * unit);
+      s += `<line x1="${X}" x2="${X}" y1="${pt + ih}" y2="${pt + ih + 5}" stroke="var(--muted)"/>`;
+      s += `<text x="${X}" y="${pt + ih + 18}" text-anchor="middle">${tick(+v.toPrecision(12), xst)}</text>`;
+    }
+    s += `<line x1="${pl}" x2="${W - pr}" y1="${pt + ih}" y2="${pt + ih}" stroke="var(--muted)"/>`;
+    s += `<text class="ttl" x="${pl + iw / 2}" y="${H - 8}" text-anchor="middle">Distance downstream (${km ? "km" : "m"})</text>`;
+    s += `<text class="ttl" transform="translate(16 ${pt + ih / 2}) rotate(-90)" text-anchor="middle">Measured Rn (Bq/m³)</text>`;
+    s += `<text class="ttl" transform="translate(${W - 14} ${pt + ih / 2}) rotate(90)" text-anchor="middle">Discharge (m³/s)</text>`;
+    // axis colour keys
+    s += `<rect x="${pl - 3}" y="${pt}" width="3" height="${ih}" fill="var(--accent)" opacity=".5"/>`;
+    s += `<rect x="${W - pr}" y="${pt}" width="3" height="${ih}" fill="var(--qcol)" opacity=".5"/>`;
+    // tributary markers
+    for (const r of reaches.filter((r) => r.trib)) {
+      const X = sx(r.a);
+      s += `<line x1="${X}" x2="${X}" y1="${pt}" y2="${pt + ih}" stroke="var(--trib)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      s += `<text x="${X + 4}" y="${pt + 10}" style="fill:var(--trib)">reach ${r.i + 1}</text>`;
+    }
+    // discharge step line
+    let path = "";
+    reaches.forEach((r, k) => {
+      const prev = reaches[k - 1];
+      path += (prev && prev.b === r.a ? `L${sx(r.a)} ${syQ(r.q)}` : `M${sx(r.a)} ${syQ(r.q)}`) + `L${sx(r.b)} ${syQ(r.q)}`;
+    });
+    if (path) s += `<path d="${path}" fill="none" stroke="var(--qcol)" stroke-width="2" stroke-linejoin="round"/>`;
+    // radon line + points
+    const rp = nodes.map((p, k) => `${k ? "L" : "M"}${sx(p.x)} ${syR(p.rn)}`).join("");
+    s += `<path d="${rp}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+    for (const p of nodes) s += `<circle cx="${sx(p.x)}" cy="${syR(p.rn)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+    // hover layer
+    s += `<line id="pcross" x1="0" x2="0" y1="${pt}" y2="${pt + ih}" stroke="var(--muted)" stroke-dasharray="2 3" visibility="hidden"/>`;
+    s += `<rect id="phit" x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent"/>`;
+    svg.innerHTML = s;
+    profData = { nodes, reaches, sx, x0, x1, pl, iw, W, km, unit };
+  }
+
+  function profHover(e) {
+    const tip = $("ptip"), cross = $("pcross");
+    if (!profData || !cross) return;
+    const box = $("prof").getBoundingClientRect(), scale = profData.W / box.width;
+    const X = (e.clientX - box.left) * scale;
+    if (X < profData.pl || X > profData.pl + profData.iw) { tip.hidden = true; cross.setAttribute("visibility", "hidden"); return; }
+    const x = profData.x0 + ((X - profData.pl) / profData.iw) * (profData.x1 - profData.x0);
+    let near = profData.nodes[0];
+    for (const p of profData.nodes) if (Math.abs(p.x - x) < Math.abs(near.x - x)) near = p;
+    const reach = profData.reaches.find((r) => x >= r.a && x <= r.b);
+    const cx = profData.sx(near.x);
+    cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("visibility", "visible");
+    const loc = (v) => profData.km ? `${fmt(v / 1000, 2)} km` : `${fmt(v, 0)} m`;
+    tip.innerHTML = `<b>Point ${near.i + 1}</b> · ${loc(near.x)}<br>Rn <span class="mono">${fmt(near.rn, Number.isInteger(near.rn) ? 0 : 1)}</span> Bq/m³` +
+      (reach ? `<br><b>Reach ${reach.i + 1}</b>${reach.trib ? " (tributary)" : ""} · Q <span class="mono">${fmt(reach.q, 4)}</span> m³/s` : "");
+    tip.hidden = false;
+    const pb = $("profBox").getBoundingClientRect();
+    let tx = e.clientX - pb.left + 14; const ty = e.clientY - pb.top + 14;
+    if (tx + tip.offsetWidth > pb.width) tx = e.clientX - pb.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(0, tx) + "px"; tip.style.top = ty + "px";
+  }
+
+  function drawNetwork() {
+    const svg = $("net"), rows = state.rows, n = rows.length;
+    if (n < 1) {
+      svg.setAttribute("width", 400); svg.setAttribute("height", 60);
+      svg.innerHTML = `<text x="0" y="30">Add sampling points to see the network.</text>`;
+      return;
+    }
+    const pad = 46, avail = Math.max(($("netWrap").clientWidth || 900) - 2 * pad, 200);
+    const step = n > 1 ? Math.max(96, avail / (n - 1)) : 0;
+    const W = Math.round(2 * pad + step * (n - 1)), H = 176, y = 92;
+    const cx = (i) => pad + i * step;
+    const rnTxt = (r) => { const v = num(r.rn); return v === null || Number.isNaN(v) ? "–" : `${fmt(v, Number.isInteger(v) ? 0 : 1)}`; };
+    const xTxt = (r) => { const v = num(r.x); return v === null || Number.isNaN(v) ? "" : `${fmt(v, Number.isInteger(v) ? 0 : 1)} m`; };
+    let s = "";
+    // reaches
+    for (let i = 0; i < n - 1; i++) {
+      const r = rows[i], trib = r.type === "trib";
+      const x1 = cx(i), x2 = cx(i + 1), xm = (x1 + x2) / 2;
+      const a = num(r.x), b = num(rows[i + 1].x);
+      const len = a !== null && b !== null && b > a ? `${fmt(b - a, Number.isInteger(b - a) ? 0 : 2)} m` : "length –";
+      const tip = `Reach ${i + 1} (${trib ? "tributary" : "normal"}): point ${i + 1} → ${i + 2}, ${len}` +
+        (trib ? `, inflow ${r.qin || "–"} m³/s at ${r.cin || "–"} Bq/m³` : "");
+      if (trib) {
+        s += `<g><title>${esc(tip)}</title>`;
+        s += `<path d="M${xm - 30} ${y - 62} Q ${xm - 4} ${y - 40} ${xm} ${y - 12}" fill="none" stroke="var(--trib)" stroke-width="3" stroke-linecap="round"/>`;
+        s += `<text class="tlab" x="${xm - 32}" y="${y - 68}" text-anchor="middle">inflow</text></g>`;
+      }
+      s += `<g><title>${esc(tip)}</title>`;
+      s += `<line x1="${x1}" x2="${x2}" y1="${y}" y2="${y}" stroke="${trib ? "var(--trib)" : "var(--muted)"}" stroke-width="3" stroke-linecap="round"/>`;
+      s += `<rect x="${xm - 15}" y="${y - 10}" width="30" height="20" rx="10" fill="var(--surface)" stroke="${trib ? "var(--trib)" : "var(--line)"}" stroke-width="1.5"/>`;
+      s += `<text class="rnum" x="${xm}" y="${y + 4}" text-anchor="middle">${i + 1}</text></g>`;
+    }
+    // nodes
+    for (let i = 0; i < n; i++) {
+      const r = rows[i], x = cx(i);
+      s += `<g><title>${esc(`Point ${i + 1}: ${xTxt(r) || "location –"}, measured Rn ${rnTxt(r)} Bq/m³`)}</title>`;
+      s += `<circle cx="${x}" cy="${y}" r="14" fill="var(--accent)" stroke="var(--surface)" stroke-width="2.5"/>`;
+      s += `<text class="nnum" x="${x}" y="${y + 4}" text-anchor="middle">${i + 1}</text>`;
+      s += `<text class="rn" x="${x}" y="${y + 34}" text-anchor="middle">${rnTxt(r)}</text>`;
+      s += `<text x="${x}" y="${y + 50}" text-anchor="middle">${esc(xTxt(r))}</text></g>`;
+    }
+    svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = s;
+  }
+
+  // ---------- fill tool ----------
+  function buildFillSelect() {
+    const sel = $("fill-col"), cur = sel.value;
+    sel.innerHTML = visibleCols().filter((c) => c.kind === "reach" && !INFLOW.includes(c.key)).map((c) => `<option value="${c.key}">${c.label} (${c.unit})</option>`).join("");
+    if ([...sel.options].some((o) => o.value === cur)) sel.value = cur;
+  }
+  function fill(overwrite) {
+    const key = $("fill-col").value, val = $("fill-val").value.trim();
+    if (!key || val === "") return;
+    state.rows.forEach((r, i) => { if (i < state.rows.length - 1 && (overwrite || String(r[key] ?? "").trim() === "")) r[key] = val; });
+    renderBody();
+  }
+
+  // ---------- paste from Excel ----------
+  function handlePaste(e) {
+    const t = e.target; if (!t.matches("td input[data-k]")) return;
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (!/[\t\n]/.test(text.trim())) return; // single value: normal paste
+    e.preventDefault();
+    const grid = text.replace(/\r/g, "").replace(/\n$/, "").split("\n").map((l) => l.split("\t"));
+    const keys = visibleCols().map((c) => c.key);
+    const r0 = +t.dataset.i, c0 = keys.indexOf(t.dataset.k);
+    grid.forEach((line, dr) => {
+      const ri = r0 + dr;
+      while (state.rows.length <= ri) state.rows.push(blankRow());
+      line.forEach((v, dc) => { const k = keys[c0 + dc]; if (k) state.rows[ri][k] = v.trim(); });
+      const row = state.rows[ri];
+      if (num(row.qin) > 0) row.type = "trib";
+      else if (row.type !== "trib") for (const k of INFLOW) row[k] = "0";
+    });
+    renderBody();
+  }
+
+  // ---------- workbook ----------
+  function buildWorkbook() {
+    const o = state.opts, rows = state.rows, n = rows.length, R0 = 4;
+    const ws = {};
+    const put = (addr, v) => {
+      if (v === null || v === undefined || v === "") return;
+      ws[addr] = typeof v === "number" ? { t: "n", v } : (v.f ? v : { t: "s", v: String(v) });
+    };
+    const val = (s, dflt = 0) => { const v = num(s); return v === null || Number.isNaN(v) ? dflt : v; };
+
+    // OPTIONS block: same cells and labels as the FINIFLUX template
+    put("B2", "FINIFUX OPTIONS");
+    put("B4", "Path for FINIFLUX Simulation"); put("C4", o.path || "");
+    put("B6", "Number of CPUs"); put("C6", val(o.cpus, 4));
+    put("B8", "Degasing Model"); put("C8", val(o.degas, 1));
+    put("B9", "1 = Empirical"); put("B10", "2 = Empirical"); put("B11", "3 = User defined values");
+    put("B13", "Hyporheic Zone on/off"); put("C13", val(o.hz, 1));
+    put("B14", "1 = on"); put("B15", "0 = off");
+    put("B17", "Distribution for HZ Residence Times"); put("C17", val(o.distr, 1));
+    put("B18", "1 = Exponential"); put("B19", "2 =  Power Law with Cutoff"); put("B20", "3 = GAMMA");
+    put("B22", "ALPHA Parameter for GAMMA model"); put("C22", val(o.alpha, 0.5));
+    put("B24", "Upstream Weight"); put("C24", val(o.beta, 0.5));
+    put("B25", "0 = off"); put("B26", "> 0 = on");
+    if (num(o.detect) !== null && !Number.isNaN(num(o.detect))) { put("B28", "Radon Detection Limit"); put("C28", num(o.detect)); }
+
+    // headers (row 2) and units (row 3)
+    const H = {
+      F: ["Observation Points", "[m]"], G: ["Measured Rn Concentrations", "[Bq/m³]"],
+      I: ["Reach Number", "[-]"], J: ["Reach Length", "[m]"], K: ["River Depth", "[m]"], L: ["River Width", "[m]"],
+      M: ["GW Endmember Concentration", "[Bq/m³]"], N: ["Depth of Hyporheic Zone", "[m]"], O: ["Prosity of Hyporheic Zone", "[-]"],
+      P: ["Surface Inflow", "[m³/s]"], Q: ["Inflow Length", "[m]"], R: ["Concentration of Surface Inflow", "[Bq/m³]"],
+      S: ["River Discharge", "[m³/s]"], T: ["User Defined Degasing Values (only for option: Degasing Model = 3)", "[m/s]"],
+      U: ["Endmember Standard Deviation", "[Bq/m³]"],
+    };
+    for (const [c, [h, u]] of Object.entries(H)) { put(c + "2", h); put(c + "3", u); }
+
+    const hasSD = rows.slice(0, -1).some((r) => num(r.sd) !== null);
+    for (let i = 0; i < n; i++) {
+      const r = rows[i], row = R0 + i;
+      put("F" + row, val(r.x)); put("G" + row, val(r.rn));
+      if (i === n - 1) continue;
+      const dx = val(rows[i + 1].x) - val(r.x);
+      put("I" + row, i + 1);
+      put("J" + row, { t: "n", v: dx, f: `F${row + 1}-F${row}` });
+      put("K" + row, val(r.d)); put("L" + row, val(r.w)); put("M" + row, val(r.cgw));
+      put("N" + row, val(r.h, 0.5)); put("O" + row, val(r.por, 0.4));
+      const trib = r.type === "trib";
+      put("P" + row, trib ? val(r.qin) : 0); put("Q" + row, trib ? val(r.lin) : 0); put("R" + row, trib ? val(r.cin) : 0);
+      put("S" + row, val(r.q)); put("T" + row, val(r.k) / 86400);
+      if (hasSD) put("U" + row, val(r.sd));
+    }
+    ws["!ref"] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: Math.max(R0 + n, 28), c: 20 } });
+    ws["!cols"] = [{ wch: 3 }, { wch: 34 }, { wch: 14 }, { wch: 3 }, { wch: 3 }, { wch: 12 }, { wch: 14 }, { wch: 3 },
+      ...Array(13).fill({ wch: 13 })];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Tabelle1");
+    return wb;
+  }
+
+  function download() {
+    const errs = update();
+    if (errs.length) { $("problems").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (typeof XLSX === "undefined") { toast("The spreadsheet library did not load. Check your internet connection and reload the page.", true); return; }
+    try {
+      XLSX.writeFile(buildWorkbook(), "FINIFLUX.xlsx");
+      toast(`FINIFLUX.xlsx created with ${state.rows.length} points and ${state.rows.length - 1} reaches.`);
+    } catch (e) { toast("The file could not be created: " + e.message, true); }
+  }
+
+  // ---------- open existing workbook ----------
+  function readWorkbook(buf) {
+    const wb = XLSX.read(buf, { type: "array" });
+    const ws = wb.Sheets["Tabelle1"] || wb.Sheets[wb.SheetNames[0]];
+    const v = (addr) => { const c = ws[addr]; return c ? c.v : undefined; };
+    const str = (x) => x === undefined || x === null ? "" : (typeof x === "number" ? String(+x.toPrecision(10)) : String(x));
+    const opts = { ...EXAMPLE.opts, path: "", detect: "" };
+    for (let r = 1; r <= 60; r++) {
+      const lab = v("B" + r), val = v("C" + r);
+      if (lab === undefined || val === undefined || val === "") continue;
+      const t = String(lab).toLowerCase();
+      if (t.includes("path")) opts.path = String(val);
+      else if (t.includes("cpu")) opts.cpus = str(val);
+      else if (t.includes("degas")) opts.degas = str(val);
+      else if (t.includes("hyporheic") || t.includes("hyoprheic")) opts.hz = str(val);
+      else if (t.includes("distribution")) opts.distr = str(val);
+      else if (t.includes("alpha")) opts.alpha = str(val);
+      else if (t.includes("weight")) opts.beta = str(val);
+      else if (t.includes("detection")) opts.detect = str(val);
+    }
+    const rows = [];
+    for (let r = 4; v("F" + r) !== undefined && v("F" + r) !== ""; r++) {
+      const row = blankRow(); delete row.type;
+      row.x = str(v("F" + r)); row.rn = str(v("G" + r));
+      const map = { d: "K", w: "L", cgw: "M", h: "N", por: "O", qin: "P", lin: "Q", cin: "R", q: "S", sd: "U" };
+      for (const [k, c] of Object.entries(map)) row[k] = str(v(c + r));
+      const kv = v("T" + r); row.k = kv === undefined || kv === "" ? "" : String(+(Number(kv) * 86400).toPrecision(8));
+      rows.push(row);
+    }
+    if (rows.length) { const l = rows[rows.length - 1]; for (const k of EDIT) if (k !== "x" && k !== "rn") l[k] = ""; }
+    return { opts, rows };
+  }
+
+  // ---------- misc ----------
+  let toastTimer;
+  function toast(msg, isErr) {
+    const t = $("toast"); t.textContent = msg; t.style.color = isErr ? "var(--err)" : "var(--ok)"; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 6000);
+  }
+
+  // ---------- events ----------
+  for (const k of OPT_IDS) {
+    $("o-" + k).addEventListener("input", (e) => {
+      state.opts[k] = e.target.value;
+      if (["hz", "distr", "degas"].includes(k)) applyOptVisibility();
+      update();
+    });
+  }
+  $("tbody").addEventListener("input", (e) => {
+    const t = e.target; if (!t.dataset.k) return;
+    state.rows[+t.dataset.i][t.dataset.k] = t.value; update();
+  });
+  $("tbody").addEventListener("paste", handlePaste);
+  $("prof").addEventListener("pointermove", profHover);
+  $("prof").addEventListener("pointerleave", () => { $("ptip").hidden = true; const c = $("pcross"); if (c) c.setAttribute("visibility", "hidden"); });
+  $("tbody").addEventListener("change", (e) => {
+    const t = e.target; if (!t.dataset.type) return;
+    const row = state.rows[+t.dataset.type];
+    row.type = t.value;
+    for (const k of INFLOW) row[k] = t.value === "trib" ? "" : "0";
+    renderBody();
+    if (t.value === "trib") { const el = $(`c-${t.dataset.type}-qin`); if (el) el.focus(); }
+  });
+  $("tbody").addEventListener("click", (e) => {
+    const ins = e.target.closest("[data-ins]");
+    if (ins) { insertBelow(+ins.dataset.ins); return; }
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    state.rows.splice(+b.dataset.del, 1); renderBody();
+  });
+
+  // Insert a forgotten point below row i. This splits reach i in two: the new
+  // reach (new point -> next point) starts with reach i's properties as a normal
+  // reach. Location and measured Rn are left empty for the user to fill in.
+  function insertBelow(i) {
+    const src = state.rows[i], row = blankRow();
+    const isLast = i === state.rows.length - 1;
+    const from = isLast && i > 0 ? state.rows[i - 1] : src;
+    for (const k of ["d", "w", "q", "cgw", "sd", "h", "por", "k"]) row[k] = from[k] ?? "";
+    if (isLast && i > 0) for (const k of ["d", "w", "q", "cgw", "sd", "h", "por", "k"]) if (String(src[k] ?? "").trim() === "") src[k] = from[k];
+    for (const k of INFLOW) row[k] = "0";
+    state.rows.splice(i + 1, 0, row);
+    renderBody();
+    const tr = $(`c-${i + 1}-x`)?.closest("tr");
+    if (tr) { tr.classList.add("fresh"); setTimeout(() => tr.classList.remove("fresh"), 1500); }
+    const el = $(`c-${i + 1}-x`);
+    if (el && !el.readOnly) el.focus(); else $(`c-${i + 1}-rn`)?.focus();
+  }
+  $("add").addEventListener("click", () => {
+    // The old last point now starts a reach: prefill its empty reach values from the reach above.
+    const n = state.rows.length;
+    if (n >= 2) {
+      const prev = state.rows[n - 1], above = state.rows[n - 2];
+      for (const k of ["d", "w", "q", "cgw", "sd", "h", "por", "k"]) if (String(prev[k] ?? "").trim() === "") prev[k] = above[k];
+    }
+    state.rows.push(blankRow());
+    renderBody();
+    const el = $(`c-${state.rows.length - 1}-x`); if (el) el.focus();
+  });
+  $("example").addEventListener("click", () => { state = clone(EXAMPLE); state.rows = state.rows.map(normRow); loadOpts(); renderHead(); renderBody(); });
+  $("clear").addEventListener("click", () => { state.rows = []; renderBody(); });
+  $("fill-empty").addEventListener("click", () => fill(false));
+  $("fill-all").addEventListener("click", () => fill(true));
+  $("download").addEventListener("click", download);
+  $("open").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    if (typeof XLSX === "undefined") { toast("The spreadsheet library did not load. Check your internet connection and reload the page.", true); return; }
+    try {
+      const got = readWorkbook(await f.arrayBuffer());
+      if (!got.rows.length) throw new Error("no sampling points found in column F from row 4");
+      state = { opts: got.opts, rows: got.rows.map(normRow) };
+      loadOpts(); renderHead(); renderBody();
+      toast(`Opened ${f.name}: ${got.rows.length} points.`);
+    } catch (err) { toast(`Could not read ${f.name}: ${err.message}`, true); }
+    e.target.value = "";
+  });
+
+  loadOpts(); renderHead(); renderBody();
+</script>
+</body>
+</html>
