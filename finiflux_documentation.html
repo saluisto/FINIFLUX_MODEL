@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .site-back { display: block; max-width: 1040px; margin: 0 auto; padding: 14px 20px 0; font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; }
+  .site-back a { color: var(--accent, #0b6e7f); text-decoration: none; }
+  .site-back a:hover { text-decoration: underline; }
+</style>
+<title>FINIFLUX Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: reading column (~70ch) with a contents list; sticky side contents on wide screens, inline on phones. */
+  :root {
+    --bg: #f3f6f6;
+    --surface: #ffffff;
+    --fg: #14232a;
+    --muted: #5a6b72;
+    --line: #d5dfe1;
+    --accent: #0b6e7f;
+    --accent-soft: #dceef0;
+    --code-bg: #eaf0f1;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+      --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --code-bg: #1c2b30;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac;
+    --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; --code-bg: #1c2b30;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15.5px; line-height: 1.65; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 28px; }
+  header { display: grid; gap: 10px; max-width: 72ch; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 5vw, 40px); line-height: 1.12; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); font-size: 16.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 12.5px; font-weight: 500; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 11px; }
+
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+  nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); display: grid; gap: 2px; font-size: 13.5px; }
+  @media (max-width: 860px) { nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); } }
+  nav.toc .t { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; grid-column: 1 / -1; }
+  nav.toc a { color: var(--muted); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--line); }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+
+  article { min-width: 0; max-width: 76ch; display: grid; gap: 8px; }
+  article section { display: grid; gap: 12px; padding-bottom: 22px; border-bottom: 1px solid var(--line); scroll-margin-top: 20px; }
+  article section:last-child { border-bottom: 0; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.25; margin: 14px 0 0; text-wrap: balance; }
+  h3 { font-size: 16px; font-weight: 600; margin: 8px 0 0; }
+  p, ul, ol { margin: 0; }
+  ul, ol { padding-left: 22px; display: grid; gap: 6px; }
+  a { color: var(--accent); }
+  code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+  pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 13px/1.55 var(--mono); }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .callout { background: var(--accent-soft); border-radius: 8px; padding: 12px 16px; }
+  .callout b { color: var(--fg); }
+  .eq { font-family: var(--mono); }
+  .refs { list-style: none; padding: 0; gap: 12px; }
+  .refs li { padding-left: 14px; border-left: 2px solid var(--line); }
+  .refs .j { font-style: italic; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+
+  .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+  .author b { color: var(--fg); font-weight: 600; }
+  .author a { color: var(--accent); text-decoration: none; }
+  .author a:hover, .author a:focus-visible { text-decoration: underline; }
+</style>
+</head>
+<body>
+<nav class="site-back"><a href="./">← All radon tools</a></nav>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">²²²Rn · FINIFLUX model</div>
+    <h1>FINIFLUX, the differentiable Python edition</h1>
+    <p class="lede">A differentiable reimplementation of the FINIFLUX radon mass-balance model. It estimates groundwater discharge and hyporheic exchange to rivers from radon-222 profiles, reach by reach.</p>
+    <div class="chips"><span class="chip">PyTorch</span><span class="chip">TensorFlow</span><span class="chip">Finite elements</span><span class="chip">Autodiff inversion</span><span class="chip">Uncertainty</span></div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Contents">
+      <span class="t">Contents</span>
+      <a href="#overview">Overview</a>
+      <a href="#background">Background and references</a>
+      <a href="#install">Installation</a>
+      <a href="#quickstart">Quick start</a>
+      <a href="#equation">Governing equation</a>
+      <a href="#inverse">Inverse problem</a>
+      <a href="#uncertainty">Uncertainty</a>
+      <a href="#endmember">Endmember uncertainty</a>
+      <a href="#bedform">Depth from bedforms</a>
+      <a href="#input">Input file</a>
+      <a href="#outputs">Outputs</a>
+      <a href="#layout">Package layout</a>
+      <a href="#publications">Publications</a>
+    </nav>
+
+    <article>
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>The whole forward model is built from differentiable tensor operations: steady-state 1-D advection–reaction transport, solved with an implicit Petrov–Galerkin (upwinded) linear finite-element scheme. This <b>replaces the external BEOPEST optimizer</b> of the original MATLAB code. Gradients of the data misfit with respect to the parameters come from backpropagation, so the inversion optimizes directly.</p>
+        <p>It ships as two parallel packages with identical physics, inputs and outputs. Only the tensor backend and optimizer differ:</p>
+        <ul>
+          <li><code>finiflux_pytorch/</code>: <b>PyTorch</b> backend (Adam warm-start, then L-BFGS).</li>
+          <li><code>finiflux_tensorflow/</code>: <b>TensorFlow</b> backend (Adam via <code>GradientTape</code>).</li>
+        </ul>
+        <p>For each reach, the model estimates groundwater inflow <code>I</code>, hyporheic-zone depth <code>h</code> and hyporheic-zone mean residence time <code>t_h</code>.</p>
+      </section>
+
+      <section id="background">
+        <h2>Background and references</h2>
+        <p>Radon-222 is a naturally occurring, conservative groundwater tracer. Groundwater is strongly enriched in radon compared with river water, so the radon profile along a stream records where and how much groundwater enters. FINIFLUX closes a radon mass balance reach by reach. It accounts for groundwater inflow, hyporheic exchange, degassing to the atmosphere, radioactive decay and tributary inflow, and inverts the measured radon profile into a spatially resolved estimate of groundwater discharge.</p>
+        <ul class="refs">
+          <li>Frei, S. &amp; Gilfedder, B.S. (2015). FINIFLUX: An implicit finite element model for quantification of groundwater fluxes and hyporheic exchange in streams and rivers using radon. <span class="j">Water Resources Research</span>, 51, 6776–6786. <a href="https://doi.org/10.1002/2015WR017212" target="_blank" rel="noopener">doi:10.1002/2015WR017212</a></li>
+          <li>Frei, S., Durejka, S., Le Lay, H., Thomas, Z. &amp; Gilfedder, B.S. (2019). Quantification of hyporheic nitrate removal at the reach scale: Exposure times versus residence times. <span class="j">Water Resources Research</span>, 55(11), 9808–9825. <a href="https://doi.org/10.1029/2019WR025540" target="_blank" rel="noopener">doi:10.1029/2019WR025540</a></li>
+        </ul>
+      </section>
+
+      <section id="install">
+        <h2>Installation</h2>
+        <p>Requires Python 3 with NumPy, openpyxl, matplotlib and <b>one</b> tensor backend:</p>
+<pre><code># PyTorch backend
+pip install torch numpy openpyxl matplotlib
+
+# or TensorFlow backend (use an arch-matched wheel, e.g. arm64 on Apple Silicon)
+pip install tensorflow numpy openpyxl matplotlib</code></pre>
+        <p>No editable install is needed. The launcher puts the chosen package on <code>sys.path</code>.</p>
+      </section>
+
+      <section id="quickstart">
+        <h2>Quick start</h2>
+        <p><code>run_FINIFLUX.py</code> at the repository root is the only file you run. It finds <code>FINIFLUX.xlsx</code>, selects the backend, reads the input, runs the model, writes the output files and makes the plots.</p>
+<pre><code>python run_FINIFLUX.py                       # invert, PyTorch, reads FINIFLUX.xlsx -> results/
+python run_FINIFLUX.py --backend tensorflow  # same via TensorFlow
+python run_FINIFLUX.py --mode forward        # one forward run, no fitting
+python run_FINIFLUX.py --input other.xlsx --out run2 --show
+python run_FINIFLUX.py --uncertainty --rn-sigma-rel 0.1   # fit + posterior UQ, 10% meas. σ
+python run_FINIFLUX.py --endmember           # add GW-endmember uncertainty band
+python run_FINIFLUX.py --bedform-depth       # compute h from bedform heights (col N)</code></pre>
+        <p>The defaults are in the <code>CONFIG</code> dictionary at the top of the launcher, and every entry has a matching command-line flag (<code>--backend</code>, <code>--mode</code>, <code>--out</code>, <code>--plot</code>, <code>--show</code>, <code>--adam</code>, <code>--lbfgs</code>, <code>--iter</code>, <code>--lr</code>, <code>--smooth</code>, <code>--quiet</code>, plus the uncertainty, endmember and bedform flags).</p>
+        <p>Each package can also be run directly or used as a library:</p>
+<pre><code>python -m finiflux_torch.cli invert FINIFLUX.xlsx
+python -m finiflux_tf.cli    invert FINIFLUX.xlsx</code></pre>
+<pre><code>from finiflux_torch import read_input, fit, write_results, plot_all, estimate_uncertainty
+data   = read_input("FINIFLUX.xlsx")
+result = fit(data)
+write_results(result, "results/")</code></pre>
+      </section>
+
+      <section id="equation">
+        <h2>Governing equation</h2>
+        <p>Steady state, for each reach:</p>
+<pre><code>Q dC/dx = [ I·c_gw + α1 + (Q_in/L)·c_in ]            (sources)
+        − [ I + α2 + k·w + λ·d·w + Q_in/L ]·C        (sinks ∝ C)</code></pre>
+        <p><code>C</code> is radon (Bq/m³), <code>Q</code> discharge (m³/s), <code>w</code> width, <code>d</code> depth, <code>λ = 0.18/86400 s⁻¹</code> the ²²²Rn decay constant, <code>c_gw</code> the groundwater endmember, and <code>Q_in</code>, <code>L</code> and <code>c_in</code> the tributary inflow rate, length and concentration.</p>
+        <ul>
+          <li><b>Hyporheic source and loss:</b> production <code>α1</code> and loss <code>α2</code> (proportional to <code>C</code>) depend on <code>h</code>, porosity, <code>w</code>, <code>t_h</code> and the residence-time distribution (RTD).</li>
+          <li><b>Degassing</b> <code>k</code>: from O'Connor &amp; Dobbins (1958), Negulescu &amp; Rojanski (1969), or user-supplied values.</li>
+        </ul>
+        <h3>Finite-element model</h3>
+        <p>Linear (P1) elements. For each element, a reaction (consistent mass) matrix, a Galerkin advection matrix, a Petrov–Galerkin upwind correction scaled by <code>β</code>, and a load vector are assembled into dense <code>A</code> and <code>b</code> tensors. The upstream boundary condition <code>C(node₁) = Rn(node₁)</code> is imposed with the penalty method, and the system is solved with <code>torch.linalg.solve</code> or <code>tf.linalg.solve</code>. Gradients flow through the solve.</p>
+        <h3>Residence-time distributions</h3>
+        <p>All three are implemented and reduce to a smooth pair <code>(α1, α2)</code>, so gradients flow to <code>h</code> and <code>t_h</code>:</p>
+        <ul>
+          <li><b>Exponential:</b> closed form, <code>α1 = γ·h·w·por/(1+λ·t_h)</code> and <code>α2 = λ·h·w·por/(1+λ·t_h)</code>.</li>
+          <li><b>Gamma:</b> closed-form Laplace transform <code>L = (1+λ·t_h/a)^−a</code> with shape <code>a</code>.</li>
+          <li><b>Truncated power law:</b> differentiable quadrature, a faithful port of the MATLAB <code>pwr.m</code>.</li>
+        </ul>
+      </section>
+
+      <section id="inverse">
+        <h2>Inverse problem</h2>
+        <ul>
+          <li><b>Unknowns</b> per reach, held in log space for positivity and scaling: <code>θ = (log I, log h, log t_h)</code>.</li>
+          <li><b>Loss</b> = data misfit + regularization.
+            <ul>
+              <li>Data misfit <code>Σ w_j·(C − Rn_obs)²</code> with weights normalized by the detection limit, <code>w_j = 1/max(Rn_obs_j, detection_limit)²</code>, so large and small activities contribute comparably.</li>
+              <li>Regularization (configurable, small or zero by default): a smoothness penalty across neighbouring reaches and/or a light pull toward the initial values.</li>
+            </ul>
+          </li>
+          <li><b>Parameter bounds</b>, enforced every iteration: <code>I</code> from 1e-10 to 1e-2 m³/(m·s), <code>h</code> from 1e-3 to 1.0 m, <code>t_h</code> from 60 to 43 200 s.</li>
+          <li><b>Optimizer:</b> PyTorch uses Adam followed by L-BFGS. TensorFlow uses Adam, because Keras has no L-BFGS.</li>
+        </ul>
+        <p class="callout"><b>Why differentiable?</b> In the original FINIFLUX, Tikhonov regularization toward prior values is how BEOPEST stabilizes the fit. Here the regularization is a design choice, not a copy of PEST. Log-space parameters and the normalized misfit do the stabilizing, and the smoothness and prior penalties are small by default so the data drive the fit.</p>
+      </section>
+
+      <section id="uncertainty">
+        <h2>Uncertainty quantification</h2>
+        <p>The optional module <code>uncertainty.py</code> builds the Laplace (Gauss–Newton) posterior covariance of the fitted parameters on top of the same differentiable forward model. It doesn't change the forward or inverse code.</p>
+        <ul>
+          <li>The calibrated <code>θ</code> is treated as the maximum a posteriori estimate of a Gaussian-noise inverse problem, with <code>Σ = H(θ̂)⁻¹</code>.</li>
+          <li><code>method="gauss_newton"</code> (default, always positive semi-definite) uses <code>H ≈ Jᵀ Σ⁻¹ J + prior</code>. <code>method="full"</code> uses the exact autodiff Hessian.</li>
+          <li>The noise <code>σ</code> defaults to <code>max(obs, detection_limit)</code>. You can supply a known measurement σ instead (<code>--rn-sigma-abs</code> or <code>--rn-sigma-rel</code>). <code>calibrate_sigma=True</code> rescales by <code>χ²/(N−p)</code>.</li>
+          <li>Outputs per reach: best estimate, standard deviation and credible interval, plus <code>.summary()</code>, <code>.correlation()</code> and an <code>identifiability_report()</code>. The report shows the trade-off between <code>I</code>, <code>h</code> and <code>t_h</code> as near-zero Hessian eigenvalues.</li>
+        </ul>
+<pre><code>from finiflux_torch import estimate_uncertainty, UncertaintyConfig
+unc = estimate_uncertainty(data, result, config=UncertaintyConfig())</code></pre>
+      </section>
+
+      <section id="endmember">
+        <h2>Groundwater endmember uncertainty</h2>
+        <p>The groundwater endmember <code>c_gw</code> is a second, independent source of error, and usually the largest uncertainty in radon-based inflow estimates. Column U of <code>FINIFLUX.xlsx</code> holds the endmember standard deviation for each reach. <code>endmember_uncertainty(data, config, p_low, p_high)</code> re-fits the inversion with the low and high percentile endmembers and returns the resulting range of <code>I</code> per reach. A higher endmember means less inflow for the same observed radon. The percentiles can be changed with <code>--em-p-low</code> and <code>--em-p-high</code>. The result is drawn as a separate second figure.</p>
+      </section>
+
+      <section id="bedform">
+        <h2>Hyporheic depth from bedforms</h2>
+        <p>Instead of estimating <code>h</code>, <code>--bedform-depth</code> calculates it for each reach from bedform heights, with the Elliott &amp; Brooks (1997, after Fehlman 1985) dynamic-head relation <span class="eq">h_m = 0.28·(Ū²/2g)·(H/0.34d)^m</span>. Column N is then read as the bedform height <code>H</code>. <code>h</code> becomes fixed, so the inversion fits only <code>I</code> and <code>t_h</code>.</p>
+      </section>
+
+      <section id="input">
+        <h2>Input file</h2>
+        <p><code>FINIFLUX.xlsx</code> has a single sheet, read by label and column letter. This makes it robust to row shifts and works for any number of points. You can build it with the <a href="finiflux_input_builder.html">FINIFLUX input builder</a>.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Columns</th><th>Contents</th></tr></thead>
+            <tbody>
+              <tr><td><code>B</code>/<code>C</code></td><td>Options: degassing model, hyporheic zone on/off, RTD model, gamma <code>alpha</code>, upstream weighting <code>β</code>, upstream radon (boundary condition), detection limit.</td></tr>
+              <tr><td><code>F</code>, <code>G</code></td><td>Sampling points: location (m) and measured radon (Bq/m³). Every point is a measurement location, and the modelled radon at each point is compared directly with the observation.</td></tr>
+              <tr><td><code>I</code>–<code>T</code></td><td>Reaches, one fewer than points: reach length, depth, width, groundwater endmember, hyporheic depth or bedform height, porosity, tributary discharge, length and concentration, discharge, and user-defined <code>k</code>.</td></tr>
+              <tr><td><code>U</code> (optional)</td><td>Groundwater endmember standard deviation per reach, used by the endmember uncertainty analysis.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="outputs">
+        <h2>Outputs</h2>
+        <p>Each run writes to the <code>--out</code> folder: <code>gw_inflow.dat</code> (<code>I</code>), <code>depth_hz.dat</code> (<code>h</code>), <code>rtimes_hz.dat</code> (<code>t_h</code>) and <code>Rn_modeled.csv</code> (location and modelled radon). <code>--uncertainty</code> adds <code>uncertainty.csv</code>, and <code>--endmember</code> adds a second figure and <code>endmember_uncertainty.csv</code>.</p>
+        <p>The main figure, <code>finiflux_plots.png</code>, has five panels:</p>
+        <ol>
+          <li>Simulated against observed radon, with r and RMSE. A shaded ±σ band is added when a known measurement σ is given.</li>
+          <li>Estimated groundwater inflow <code>I</code> along the river, with a credible-interval band.</li>
+          <li>Estimated hyporheic depth <code>h</code>, with a credible-interval band.</li>
+          <li>Estimated residence time <code>t_h</code>, with a credible-interval band.</li>
+          <li>Cumulative groundwater inflow <code>Σ(I_i·Δx_i)</code> along the river compared with the observed discharge gain <code>ΔQ</code> (a water-balance check), with a credible band from the <code>log I</code> covariance.</li>
+        </ol>
+        <p>When uncertainty bands are drawn, the parameter panels take their y-range from the best estimates. A poorly constrained interval therefore can't flatten the estimate curve; the exact bounds are in <code>uncertainty.csv</code>.</p>
+      </section>
+
+      <section id="layout">
+        <h2>Package layout</h2>
+<pre><code>run_FINIFLUX.py              # single launcher: backend select, run, write, plot
+
+finiflux_pytorch/finiflux_torch/
+  io.py            # label-based FINIFLUX.xlsx reader + native writers (pure NumPy/openpyxl)
+  degassing.py     # k models 1/2/3
+  hyporheic.py     # α1/α2 for exp + gamma + power-law RTD (differentiable)
+  forward.py       # FE assemble + penalty BC + linear solve -> C (autodiff)
+  inverse.py       # log-params, normalized misfit + reg, Adam -> L-BFGS
+  uncertainty.py   # Laplace / Gauss-Newton posterior covariance (add-on)
+  endmember.py     # GW-endmember (c_gw) uncertainty via percentile re-fits
+  bedform.py       # Elliott-Brooks hyporheic depth h from bedform height H
+  plotting.py      # plot_radon / plot_parameters / plot_uncertainty / plot_cumulative_gw
+  cli.py           # python -m finiflux_torch.cli forward|invert
+  tests/test_smoke.py
+
+finiflux_tensorflow/finiflux_tf/   # line-for-line mirror; tf.scatter_nd + tf.linalg.solve,
+                                    # tf.GradientTape + Keras Adam</code></pre>
+        <p><code>plotting.py</code> and <code>io.py</code> are pure NumPy and identical in both packages. <code>uncertainty.py</code> has the same interface and statistics in both; only the autodiff backend differs.</p>
+      </section>
+
+      <section id="publications">
+        <h2>Publications using FINIFLUX</h2>
+        <p>Published studies that applied FINIFLUX (not a complete list), by year:</p>
+        <ul class="refs">
+          <li>Pittroff, M., Frei, S. &amp; Gilfedder, B.S. (2017). Quantifying nitrate and oxygen reduction rates in the hyporheic zone using ²²²Rn to upscale biogeochemical turnover in rivers. <span class="j">Water Resources Research</span>, 53. <a href="https://doi.org/10.1002/2016WR018917" target="_blank" rel="noopener">doi:10.1002/2016WR018917</a></li>
+          <li>Schubert, M., Knöller, K., Müller, C. &amp; Gilfedder, B. (2020). Investigating river water/groundwater interaction along a rivulet section by ²²²Rn mass balancing. <span class="j">Water</span>, 12(11), 3027. <a href="https://doi.org/10.3390/w12113027" target="_blank" rel="noopener">doi:10.3390/w12113027</a></li>
+          <li>Schubert, M. et al. (2020). Investigating groundwater discharge into a major river under low flow conditions based on a radon mass balance supported by tritium data (River Elbe). <span class="j">Water</span>, 12(10), 2838. <a href="https://doi.org/10.3390/w12102838" target="_blank" rel="noopener">doi:10.3390/w12102838</a></li>
+          <li>Frei, S., Wismeth, F. &amp; Gilfedder, B.S. (2020). Quantifizierung lokaler Grundwassereintritte in die Spree und deren Bedeutung für die Verockerungsproblematik in der Lausitz. <span class="j">Grundwasser</span>, 25, 231–241. <a href="https://doi.org/10.1007/s00767-020-00452-0" target="_blank" rel="noopener">doi:10.1007/s00767-020-00452-0</a></li>
+          <li>Kaule, R. &amp; Gilfedder, B.S. (2021). Groundwater dominates water fluxes in a headwater catchment during drought (Mähringsbach). <span class="j">Frontiers in Water</span>, 3, 706932. <a href="https://doi.org/10.3389/frwa.2021.706932" target="_blank" rel="noopener">doi:10.3389/frwa.2021.706932</a></li>
+          <li>Jimenez-Fernandez, O., Schwientek, M., Osenbrück, K., Glaser, C., Schmidt, C. &amp; Fleckenstein, J.H. (2022). Groundwater-surface water exchange as key control for instream and groundwater nitrate concentrations along a first-order agricultural stream. <span class="j">Hydrological Processes</span>, 36(2), e14507. <a href="https://doi.org/10.1002/hyp.14507" target="_blank" rel="noopener">doi:10.1002/hyp.14507</a></li>
+          <li>Adyasari, D., Dimova, N.T., Dulai, H., Gilfedder, B.S., Cartwright, I., McKenzie, T. &amp; Fuleky, P. (2023). Radon-222 as a groundwater discharge tracer to surface waters (review; provides FINIFLUX scripts). <span class="j">Earth-Science Reviews</span>, 238, 104321. <a href="https://doi.org/10.1016/j.earscirev.2023.104321" target="_blank" rel="noopener">doi:10.1016/j.earscirev.2023.104321</a></li>
+          <li>Diphofe, K., Diamond, R. &amp; Kotze, F. (2025). Quantifying baseflow with radon, H and O isotopes and field parameters in the urbanized catchment of the Little Jukskei River, Johannesburg. <span class="j">Hydrology</span>, 12(8), 203. <a href="https://doi.org/10.3390/hydrology12080203" target="_blank" rel="noopener">doi:10.3390/hydrology12080203</a></li>
+          <li>Overlooked seasonal groundwater nutrient fluxes rival anthropogenic point sources across a variable land-use tidal river (Hawkesbury–Nepean River) (2025). <span class="j">Limnology and Oceanography</span>. <a href="https://doi.org/10.1002/lno.70256" target="_blank" rel="noopener">doi:10.1002/lno.70256</a></li>
+          <li>Groundwater contribution to tropical streamflow revealed by radon and stable isotopes (2026). <span class="j">Environmental Earth Sciences</span>. <a href="https://doi.org/10.1007/s12665-026-13068-z" target="_blank" rel="noopener">doi:10.1007/s12665-026-13068-z</a></li>
+        </ul>
+      </section>
+    </article>
+  </div>
+
+  <div class="author">
+    <div class="person">
+      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
+      <a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a>
+      <a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="person">
+      <span><b>Benjamin Silas Gilfedder</b> · Hydrology, Trier University</span>
+      <a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a>
+      <a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

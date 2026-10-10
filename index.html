@@ -37,6 +37,10 @@
   .name { font-weight: 600; font-size: 17px; color: var(--accent); }
   .desc { color: var(--muted); font-size: 14px; }
   footer { font-size: 12.5px; color: var(--muted); }
+  .cat { display: grid; gap: 14px; }
+  .cat-head { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .cat-head h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; }
+  .cat-head p { margin: 0; color: var(--muted); font-size: 14px; }
   .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
   .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
   .author b { color: var(--fg); font-weight: 600; }
@@ -49,31 +53,43 @@
   <header>
     <div class="eyebrow">²²²Rn · river studies</div>
     <h1>Radon river tools</h1>
-    <p class="lede">Calculators for planning and interpreting radon surveys in rivers and streams: sampling spacing, gas exchange, degassing at weirs, mixing at confluences, and input files for the FINIFLUX model.</p>
+    <p class="lede">Calculators for planning and interpreting radon surveys in rivers and streams, and resources for the FINIFLUX model.</p>
   </header>
-  <nav class="grid">
-    <a class="card" href="radon_length_calculator.html">
-      <span class="name">Sampling length</span>
-      <span class="desc">Length until 37% of radon is still in the river, and the ideal sampling length (half of it).</span>
-    </a>
-    <a class="card" href="radon_degassing_calculator.html">
-      <span class="name">Degassing models by reach</span>
-      <span class="desc">Radon gas transfer velocity k (m/d) per reach from Bennett & Rathbun, O'Connor & Dobbins and Raymond eq. 7.</span>
-    </a>
-    <a class="card" href="radon_weir_degassing.html">
-      <span class="name">Weir and waterfall degassing</span>
-      <span class="desc">Gas transfer velocity k (m/d) across a weir or waterfall from radon measured before and after it.</span>
-    </a>
-    <a class="card" href="radon_mixing_calculator.html">
-      <span class="name">Confluence mixing</span>
-      <span class="desc">Fully mixed radon concentration (Bq/m³) where two rivers or streams join.</span>
-    </a>
-    <a class="card" href="finiflux_input_builder.html">
-      <span class="name">FINIFLUX input builder</span>
-      <span class="desc">Enter sampling points, reach properties and model options, and download a ready-to-run FINIFLUX.xlsx.</span>
-    </a>
-  </nav>
-  <footer>All tools run in the browser. No data is sent anywhere.</footer>
+  <section class="cat">
+    <div class="cat-head"><h2>Radon calculators</h2><p>Quick calculations for planning radon surveys and interpreting field data.</p></div>
+    <nav class="grid">
+      <a class="card" href="radon_length_calculator.html">
+        <span class="name">Sampling length</span>
+        <span class="desc">Length until 37% of radon is still in the river, and the ideal sampling length (half of it).</span>
+      </a>
+      <a class="card" href="radon_degassing_calculator.html">
+        <span class="name">Degassing models by reach</span>
+        <span class="desc">Radon gas transfer velocity k (m/d) per reach from Bennett & Rathbun, O'Connor & Dobbins and Raymond eq. 7.</span>
+      </a>
+      <a class="card" href="radon_weir_degassing.html">
+        <span class="name">Weir and waterfall degassing</span>
+        <span class="desc">Gas transfer velocity k (m/d) across a weir or waterfall from radon measured before and after it.</span>
+      </a>
+      <a class="card" href="radon_mixing_calculator.html">
+        <span class="name">Confluence mixing</span>
+        <span class="desc">Fully mixed radon concentration (Bq/m³) where two rivers or streams join.</span>
+      </a>
+    </nav>
+  </section>
+  <section class="cat">
+    <div class="cat-head"><h2>FINIFLUX model</h2><p>The finite-element radon mass-balance model for groundwater discharge and hyporheic exchange.</p></div>
+    <nav class="grid">
+      <a class="card" href="finiflux_documentation.html">
+        <span class="name">Documentation</span>
+        <span class="desc">What FINIFLUX does, how to install and run the Python edition, the equations, uncertainty analysis, input and output files, and publications.</span>
+      </a>
+      <a class="card" href="finiflux_input_builder.html">
+        <span class="name">Input builder</span>
+        <span class="desc">Enter sampling points, reach properties and model options, and download a ready-to-run FINIFLUX.xlsx.</span>
+      </a>
+    </nav>
+  </section>
+  <footer>All calculators run in the browser. No data is sent anywhere.</footer>
   <div class="author">
     <div class="person">
       <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
