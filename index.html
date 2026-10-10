@@ -27,7 +27,36 @@
     :root { --bg: #0f171a; --surface: #172327; --fg: #e3ecee; --muted: #93a6ac; --line: #2a3a40; --accent: #5cc3d3; --accent-soft: #1d3a40; color-scheme: dark; }
   }
   body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
-  .wrap { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 48px; display: grid; gap: 28px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 48px; display: grid; gap: 36px; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 36px; align-items: center; }
+  @media (max-width: 760px) { .hero { grid-template-columns: minmax(0, 1fr); gap: 22px; } }
+  .hero-text { display: grid; gap: 14px; align-content: center; }
+  .story { margin: 0; font-size: 14.5px; color: var(--fg); max-width: 52ch; border-left: 3px solid var(--accent); padding-left: 14px; }
+  .jump { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .jump a { font-weight: 600; font-size: 14px; color: var(--accent); text-decoration: none; border: 1px solid var(--accent); border-radius: 999px; padding: 6px 14px; }
+  .jump a:hover, .jump a:focus-visible { background: var(--accent); color: var(--surface); outline: none; }
+  .hero-fig { margin: 0; display: grid; gap: 10px; }
+  .frame { position: relative; aspect-ratio: 1086 / 1448; max-height: 620px; border-radius: 16px; overflow: hidden; box-shadow: 0 18px 40px -18px rgb(10 40 48 / .45); }
+  @media (max-width: 760px) { .frame { aspect-ratio: 1 / 1; max-height: none; } }
+  .frame img, .frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .frame img { object-fit: cover; object-position: 50% 50%; display: block; max-width: none; }
+  figcaption { font-size: 12.5px; color: var(--muted); }
+  .frame .reach { fill: none; stroke: #ffffff; stroke-width: 5; stroke-dasharray: 2 14; stroke-linecap: round; opacity: .9; }
+  .frame .pt { fill: #0b3a42; stroke: #ffffff; stroke-width: 6; }
+  .frame .pt.hot { fill: #c4561b; }
+  .frame .num { fill: #ffffff; font: 600 28px "IBM Plex Sans", system-ui, sans-serif; }
+  .frame .lab rect { fill: rgb(255 255 255 / .92); }
+  .frame .lab text { fill: #14232a; font: 500 27px "IBM Plex Mono", ui-monospace, monospace; }
+  .frame .lab.hot rect { fill: #c4561b; }
+  .frame .lab.hot text { fill: #ffffff; font-weight: 600; }
+  .frame .gw { fill: none; stroke: #f3a26b; stroke-width: 7; stroke-linecap: round; }
+  .frame .gwlab rect { fill: rgb(20 35 42 / .78); }
+  .frame .gwlab text { fill: #ffd9bf; font: 600 26px "IBM Plex Sans", system-ui, sans-serif; letter-spacing: .5px; }
+  .frame .pulse { fill: none; stroke: #ffffff; stroke-width: 4; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  @media (prefers-reduced-motion: no-preference) {
+    .frame .pulse { animation: pulse 2.7s ease-out infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: .8; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+  }
   .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
   h1 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 6px 0 8px; text-wrap: balance; }
   .lede { margin: 0; color: var(--muted); max-width: 64ch; }
@@ -37,7 +66,7 @@
   .name { font-weight: 600; font-size: 17px; color: var(--accent); }
   .desc { color: var(--muted); font-size: 14px; }
   footer { font-size: 12.5px; color: var(--muted); }
-  .cat { display: grid; gap: 14px; }
+  .cat { display: grid; gap: 14px; scroll-margin-top: 16px; }
   .cat-head { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   .cat-head h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; }
   .cat-head p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -50,12 +79,55 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">²²²Rn · river studies</div>
-    <h1>Radon river tools</h1>
-    <p class="lede">Calculators for planning and interpreting radon surveys in rivers and streams, and resources for the FINIFLUX model.</p>
+  <header class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">²²²Rn · river studies</div>
+      <h1>Radon river tools</h1>
+      <p class="lede">Calculators for planning and interpreting radon surveys in rivers and streams, and resources for the FINIFLUX model.</p>
+      <p class="story">Radon-222 is rich in groundwater and scarce in rivers. Along a stream it degasses and decays, and it rises again wherever groundwater flows in. Measured point by point, it maps where groundwater reaches the river.</p>
+      <div class="jump">
+        <a href="#calculators">Radon calculators</a>
+        <a href="#finiflux">FINIFLUX model</a>
+      </div>
+    </div>
+    <figure class="hero-fig">
+      <div class="frame">
+        <img src="assets/river-gorge.jpg" width="1086" height="1448" alt="Illustration of a turquoise river winding through a forested gorge">
+        <svg viewBox="0 0 1086 1448" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <polyline points="426,560 445,575 475,595 456,615 422,635 405,655 381,675 353,695 358,715 344,735 324,755 314,775 323,795 360,815 413,835 416,855 419,875 433,895 448,915 458,935 480,955 510,975 520,995 530,1015 546,1035 569,1055 583,1075 593,1095 606,1115 610,1135 614,1155 615,1160" class="reach"/>
+          <path d="M120 1010 Q 300 980 392 896" class="gw"/>
+          <path d="M392 896 l -34 6 m 34 -6 l -12 32" class="gw"/>
+          <g class="gwlab"><rect x="40" y="1018" width="300" height="50" rx="25"/><text x="190" y="1052" text-anchor="middle">groundwater in</text></g>
+          <circle cx="426" cy="560" r="24" class="pulse" style="animation-delay:0.00s"/>
+          <circle cx="426" cy="560" r="24" class="pt"/>
+          <text x="426" y="569" class="num" text-anchor="middle">1</text>
+          <g class="lab"><rect x="464" y="534" width="250" height="52" rx="26"/><text x="589" y="570" text-anchor="middle">3,100 Bq/m³</text></g>
+          <circle cx="373" cy="680" r="24" class="pulse" style="animation-delay:0.45s"/>
+          <circle cx="373" cy="680" r="24" class="pt"/>
+          <text x="373" y="689" class="num" text-anchor="middle">2</text>
+          <g class="lab"><rect x="411" y="654" width="250" height="52" rx="26"/><text x="536" y="690" text-anchor="middle">2,600 Bq/m³</text></g>
+          <circle cx="322" cy="790" r="24" class="pulse" style="animation-delay:0.90s"/>
+          <circle cx="322" cy="790" r="24" class="pt"/>
+          <text x="322" y="799" class="num" text-anchor="middle">3</text>
+          <g class="lab"><rect x="360" y="764" width="250" height="52" rx="26"/><text x="485" y="800" text-anchor="middle">2,250 Bq/m³</text></g>
+          <circle cx="422" cy="880" r="24" class="pulse" style="animation-delay:1.35s"/>
+          <circle cx="422" cy="880" r="24" class="pt hot"/>
+          <text x="422" y="889" class="num" text-anchor="middle">4</text>
+          <g class="lab hot"><rect x="460" y="854" width="250" height="52" rx="26"/><text x="585" y="890" text-anchor="middle">3,400 Bq/m³</text></g>
+          <circle cx="522" cy="1000" r="24" class="pulse" style="animation-delay:1.80s"/>
+          <circle cx="522" cy="1000" r="24" class="pt"/>
+          <text x="522" y="1009" class="num" text-anchor="middle">5</text>
+          <g class="lab"><rect x="560" y="974" width="250" height="52" rx="26"/><text x="685" y="1010" text-anchor="middle">2,700 Bq/m³</text></g>
+          <circle cx="615" cy="1160" r="24" class="pulse" style="animation-delay:2.25s"/>
+          <circle cx="615" cy="1160" r="24" class="pt"/>
+          <text x="615" y="1169" class="num" text-anchor="middle">6</text>
+          <g class="lab"><rect x="653" y="1134" width="250" height="52" rx="26"/><text x="778" y="1170" text-anchor="middle">2,150 Bq/m³</text></g>
+        </svg>
+      </div>
+      <figcaption>Illustration: an imagined radon survey along the river. Radon falls downstream through degassing and decay, then jumps at point 4 where groundwater flows in. Values are made up.</figcaption>
+    </figure>
   </header>
-  <section class="cat">
+  <section class="cat" id="calculators">
     <div class="cat-head"><h2>Radon calculators</h2><p>Quick calculations for planning radon surveys and interpreting field data.</p></div>
     <nav class="grid">
       <a class="card" href="radon_length_calculator.html">
@@ -76,7 +148,7 @@
       </a>
     </nav>
   </section>
-  <section class="cat">
+  <section class="cat" id="finiflux">
     <div class="cat-head"><h2>FINIFLUX model</h2><p>The finite-element radon mass-balance model for groundwater discharge and hyporheic exchange.</p></div>
     <nav class="grid">
       <a class="card" href="finiflux_documentation.html">
