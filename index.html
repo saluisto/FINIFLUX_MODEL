@@ -70,7 +70,7 @@
   .cat-head a { color: var(--accent); }
   .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; }
   .ex { display: grid; grid-template-rows: auto 1fr; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  .ex img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center top; background: #ffffff; border-bottom: 1px solid var(--line); }
+  .ex img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-bottom: 1px solid var(--line); }
   .ex-body { display: grid; gap: 10px; align-content: start; padding: 18px 20px 20px; }
   .ex-head { display: grid; gap: 2px; }
   .ex-head h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 21px; }
@@ -218,7 +218,7 @@
     <div class="cat-head"><h2>Example datasets</h2><p>Ready-to-run FINIFLUX input files from two well-studied rivers. Open them in the <a href="finiflux_input_builder.html">input builder</a> to explore the network, or run them with the Python code.</p></div>
     <div class="ex-grid">
       <article class="ex">
-        <img src="assets/manual/avon_results.jpg" alt="Measured and modelled radon and cumulative groundwater flux along the Avon River" loading="lazy">
+        <img src="assets/examples/avon_river.jpg" alt="The Avon River flowing calmly between green, tree-lined banks, with hills in the distance" loading="lazy">
         <div class="ex-body">
           <div class="ex-head"><span class="ex-tag">Simple case</span><h3>Avon River</h3><span class="ex-where">Gippsland Basin, Victoria, Australia</span></div>
           <p>The Avon drains Mt. Wellington (664 m a.s.l.) and runs 122 km south to Lake Wellington. About 30 % of the catchment is mountainous headwater; the rest is lowland plain, where the river meanders through a wide gravel channel with riffle–pool sequences.</p><p>The dataset covers 50 km of the middle and lower river. In the dry climate there are no tributaries and the river is fed only by groundwater, close to an ideal case for FINIFLUX. Parafluvial flow through gravel banks makes the estimated groundwater inflow exceed the discharge gain.</p>
@@ -235,7 +235,7 @@
         </div>
       </article>
       <article class="ex">
-        <img src="assets/manual/selke_results.jpg" alt="Measured and modelled radon and cumulative groundwater flux along the Selke River" loading="lazy">
+        <img src="assets/examples/selke_river.jpg" alt="Aerial view of the Selke River winding through a strip of woodland between farm fields" loading="lazy">
         <div class="ex-body">
           <div class="ex-head"><span class="ex-tag">Complex case</span><h3>Selke River</h3><span class="ex-where">Harz Mountains, Saxony-Anhalt, Germany</span></div>
           <p>The Selke drains the Harz Mountains and flows to the Bode. It starts in mountainous headwaters, crosses an upland plateau and then runs through gravel-bed lowlands with intensive agriculture. Its lower reaches both lose and gain water.</p><p>The dataset shows the harder parts of a FINIFLUX setup: tributaries entered as 1 m inflow reaches, a waterfall whose gas transfer velocity was derived from the radon drop across it, and user-defined degassing for every other reach.</p>
