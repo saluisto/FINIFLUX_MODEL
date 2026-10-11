@@ -91,11 +91,14 @@
   .cat-head { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   .cat-head h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; }
   .cat-head p { margin: 0; color: var(--muted); font-size: 14px; }
-  .author { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-  .author .person { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
-  .author b { color: var(--fg); font-weight: 600; }
-  .author a { color: var(--accent); text-decoration: none; }
-  .author a:hover, .author a:focus-visible { text-decoration: underline; }
+  .authors { display: grid; gap: 10px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .authors-t { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .authors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px 32px; }
+  .authors .person { display: grid; gap: 1px; font-size: 14px; color: var(--muted); padding-left: 14px; border-left: 3px solid var(--accent); }
+  .authors .person b { color: var(--fg); font-weight: 600; font-size: 15.5px; }
+  .authors .links { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 4px; font-size: 13.5px; }
+  .authors a { color: var(--accent); text-decoration: none; }
+  .authors a:hover, .authors a:focus-visible { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -149,6 +152,23 @@
       <figcaption>Illustration: an imagined radon survey along the river. Radon falls downstream through degassing and decay, then jumps at point 4 where groundwater flows in. Values are made up.</figcaption>
     </figure>
   </header>
+  <section class="authors" aria-label="Authors">
+    <span class="authors-t">Developed by</span>
+    <div class="authors-grid">
+      <div class="person">
+        <b>Sven Frei</b>
+        <span>Aquatic Ecology and Water Quality Management group</span>
+        <span>Wageningen University &amp; Research, the Netherlands</span>
+        <span class="links"><a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a><a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a></span>
+      </div>
+      <div class="person">
+        <b>Benjamin Silas Gilfedder</b>
+        <span>Hydrology</span>
+        <span>Trier University, Germany</span>
+        <span class="links"><a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a><a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a></span>
+      </div>
+    </div>
+  </section>
   <section class="cat" id="calculators">
     <div class="cat-head"><h2>Radon calculators</h2><p>Quick calculations for planning radon surveys and interpreting field data.</p></div>
     <nav class="grid">
@@ -234,18 +254,6 @@
     </div>
   </section>
   <footer>All calculators run in the browser. No data is sent anywhere.</footer>
-  <div class="author">
-    <div class="person">
-      <span><b>Sven Frei</b> · Aquatic Ecology and Water Quality Management group, Wageningen University &amp; Research</span>
-      <a href="mailto:sven.frei@wur.nl">sven.frei@wur.nl</a>
-      <a href="https://www.linkedin.com/in/sven-frei-1a9808151/" target="_blank" rel="noopener">LinkedIn</a>
-    </div>
-    <div class="person">
-      <span><b>Benjamin Silas Gilfedder</b> · Hydrology, Trier University</span>
-      <a href="mailto:gilfedder@uni-trier.de">gilfedder@uni-trier.de</a>
-      <a href="https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/hydrologie/team/benjamin-s-gilfedder" target="_blank" rel="noopener">University profile</a>
-    </div>
-  </div>
 </div>
 </body>
 </html>
